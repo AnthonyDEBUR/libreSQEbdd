@@ -1,0 +1,31 @@
+
+
+CREATE ROLE cbriand WITH 
+  LOGIN PASSWORD 'see pass'
+  ;
+
+--creer un role user acoudart
+
+CREATE ROLE adebur WITH 
+  LOGIN PASSWORD 'see pass'
+  ;
+
+
+
+-- alter role
+
+ALTER USER cbriand WITH SUPERUSER;
+ALTER USER adebur WITH SUPERUSER;
+
+CREATE ROLE grp_eptbv_planif_dba WITH 
+  CREATEDB 
+  CREATEROLE
+  ;
+
+REASSIGN OWNED BY cbriand, adebur TO grp_eptbv_planif_dba
+
+
+
+
+
+  
