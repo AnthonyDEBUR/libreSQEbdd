@@ -88,8 +88,8 @@ SELECT * FROM TEST
 
 DROP TABLE IF EXISTS sqe.t_marche_mar CASCADE;
 CREATE TABLE sqe.t_marche_mar(
-mar_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-mar_pre_id INTEGER, 
+mar_id serial PRIMARY KEY,
+mar_pre_id INTEGER, -- Titulaire du marché.
 mar_per_nom TEXT,
 mar_montantmin NUMERIC,
 mar_montantmax NUMERIC,
@@ -98,7 +98,8 @@ mar_datefin DATE,
 mar_statut TEXT,
 CONSTRAINT c_fk_mar_pre_id FOREIGN KEY (mar_pre_id) REFERENCES refer.tr_prestataire_pre(pre_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_mar_per_nom FOREIGN KEY (mar_per_nom) REFERENCES refer.tr_perimetre_per (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT,
-CONSTRAINT c_ck_mar_statut CHECK (mar_statut='En cours' OR mar_statut='Terminé')
+CONSTRAINT c_ck_mar_statut CHECK (mar_statut='En cours' OR mar_statut='Terminé'),
+CONSTRAINT c_ck_mar_datefin CHECK (mar_datefin > mar_datedebut)
 );
 
 
@@ -117,35 +118,112 @@ COMMENT ON COLUMN sqe.t_marche_mar.mar_pre_id IS 'Identifiant du prestataire';
 ALTER TABLE sqe.t_marche_mar OWNER TO grp_eptbv_planif_dba;
 
 ----------------------------------------
--- creation des tables relatives aux prestations du marché
+-- creation des tables relatives aux prestations 
 ----------------------------------------
 
-CREATE TABLE sqe.t_premar_prm(
-prm_mar_id UUID,
-prm_pre_id INTEGER,
-prm_nom TEXT,
-prm_nature TEXT,
-prm_unitedoeuvre TEXT,
-CONSTRAINT cpk_prm PRIMARY KEY (prm_mar_id, prm_pre_id)
-CONSTRAINT  c_fk_prm_mar_id FOREIGN KEY (prm_mar_id) REFERENCES sqe.t_marche_mar(par_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT  c_fk_prm_pre_id FOREIGN KEY (prm_pre_id) REFERENCES sqe.tr_prestataire_pre(pre_id) ON UPDATE CASCADE ON DELETE CASCADE
-);
+
+
+
 
 
 ----------------------------------------
 -- creation des tables relatives aux prestations du marché
 ----------------------------------------
 
-CREATE TABLE sqe.t_premar_prm(
-prm_mar_id UUID,
-prm_pre_id INTEGER,
-prm_nom TEXT,
-prm_nature TEXT,
-prm_unitedoeuvre TEXT,
-CONSTRAINT cpk_prm PRIMARY KEY (prm_mar_id, prm_pre_id)
-CONSTRAINT  c_fk_prm_mar_id FOREIGN KEY (prm_mar_id) REFERENCES sqe.t_marche_mar(par_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT  c_fk_prm_pre_id FOREIGN KEY (prm_pre_id) REFERENCES sqe.tr_prestataire_pre(pre_id) ON UPDATE CASCADE ON DELETE CASCADE
+CREATE TABLE sqe.t_prestation_prs(
+prs_id INTEGER PRIMARY KEY, -- identifiant de la prestation
+prs_mar_id INTEGER,
+prs_pre_id INTEGER,
+prs_nomprestation TEXT,
+prs_natureprestation TEXT,
+prm_unitedoeuvre TEXT, -- A VOIR SI UTILE 
+CONSTRAINT  c_fk_prs_mar_id FOREIGN KEY (prs_mar_id) REFERENCES sqe.t_marche_mar(mar_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT  c_fk_prs_pre_id FOREIGN KEY (prs_pre_id) REFERENCES refer.tr_prestataire_pre(pre_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+COMMENT ON COLUMN sqe.t_prestation_prs.prs_pre_id IS 'Soit titulaire du marché soit sous traitant';
+
+----------------------------------------
+-- creation des tables relatives aux prix unitaires
+----------------------------------------
+DROP TABLE IF EXISTS sqe.t_prixunitaire_pru;
+CREATE TABLE sqe.t_prixunitaire_pru(
+pru_id serial PRIMARY KEY,
+pru_prs_id INTEGER,
+pru_datedebut DATE,
+pru_datefin DATE,
+pru_valeur NUMERIC, 
+CONSTRAINT  c_fk_pru_prs_id FOREIGN KEY (pru_prs_id) REFERENCES sqe.t_prestation_prs(prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_ck_pru_datefin CHECK (pru_datefin > pru_datedebut)
+);
+
+COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datedebut IS 'Date de début de la validité du prix';
+COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datefin IS 'Date de fin de la validité du prix';
+
+
+
+CREATE OR REPLACE FUNCTION sqe.checkoverlapsprixunitaire()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ AS $function$   
+
+  DECLARE nbChevauchements  INTEGER    ;
+
+  BEGIN
+
+    -- verification des non-chevauchements pour les operations du dispositif
+    SELECT COUNT(*) INTO nbChevauchements
+    FROM   sqe.t_prixunitaire_pru
+    WHERE  pru_prs_id = NEW.pru_prs_id 
+           AND (pru_datedebut, pru_datefin) OVERLAPS (NEW.pru_datedebut, NEW.pru_datefin)
+    ;
+
+    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
+    IF (nbChevauchements > 1) THEN 
+      RAISE EXCEPTION 'Il est impossible d''avoir plusieurs prix unitaires pour une même date'  ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$;
+
+CREATE TRIGGER update_pru  AFTER INSERT OR UPDATE ON 
+    sqe.t_prixunitaire_pru FOR EACH ROW EXECUTE FUNCTION sqe.checkoverlapsprixunitaire();
+
+  
+  
+CREATE TABLE refer.tr_statutpresta_stp(
+stp_nom TEXT PRIMARY KEY,
+stp_description TEXT
+);
+
+INSERT INTO refer.tr_statutpresta_stp VALUES ('Emis', 'Bon de commande emis');
+INSERT INTO refer.tr_statutpresta_stp VALUES ('Prélevé', 'Prélèvement fait');
+INSERT INTO refer.tr_statutpresta_stp VALUES ('Analysé', 'Analyse rendue');
+INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
+
+
+CREATE TABLE sqe.t_boncommande_bco(
+bco_id serial PRIMARY KEY,
+bco_prs_id integer,
+bco_per_nom TEXT,
+bco_refcommande TEXT,
+bco_stp_nom TEXT, -- Statut 
+bco_commentaires TEXT,
+bco_nbpresta INTEGER,
+CONSTRAINT c_fk_bco_prs_id FOREIGN KEY (bco_prs_id) 
+REFERENCES sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_fk_per_nom FOREIGN KEY (bco_per_nom) 
+REFERENCES refer.tr_perimetre_per (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_bco_stp_nom FOREIGN KEY (bco_stp_nom) 
+REFERENCES refer.tr_statutpresta_stp (stp_nom) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+COMMENT ON COLUMN sqe.t_boncommande_bco.bco_stp_nom IS 'Statut du bon de commande';
+
+
+/*
+ * programme type
+ * 
+ */
 
 
 
