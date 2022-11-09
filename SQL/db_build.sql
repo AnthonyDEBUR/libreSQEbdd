@@ -132,64 +132,20 @@ ALTER TABLE sqe.t_marche_mar OWNER TO grp_eptbv_planif_dba;
 
 CREATE TABLE sqe.t_prestation_prs(
 prs_id INTEGER PRIMARY KEY, -- identifiant de la prestation
-prs_mar_id INTEGER,
-prs_pre_id INTEGER,
+prs_mar_id INTEGER, -- identifiant du marché
+prs_pre_id INTEGER, -- identifiant du prestataire
 prs_nomprestation TEXT,
 prs_natureprestation TEXT,
 prm_unitedoeuvre TEXT, -- A VOIR SI UTILE 
 CONSTRAINT  c_fk_prs_mar_id FOREIGN KEY (prs_mar_id) REFERENCES sqe.t_marche_mar(mar_id) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT  c_fk_prs_pre_id FOREIGN KEY (prs_pre_id) REFERENCES refer.tr_prestataire_pre(pre_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
-COMMENT ON COLUMN sqe.t_prestation_prs.prs_pre_id IS 'Soit titulaire du marché soit sous traitant';
-
-----------------------------------------
--- creation des tables relatives aux prix unitaires
-----------------------------------------
-DROP TABLE IF EXISTS sqe.t_prixunitaire_pru;
-CREATE TABLE sqe.t_prixunitaire_pru(
-pru_id serial PRIMARY KEY,
-pru_prs_id INTEGER,
-pru_datedebut DATE,
-pru_datefin DATE,
-pru_valeur NUMERIC, 
-CONSTRAINT  c_fk_pru_prs_id FOREIGN KEY (pru_prs_id) REFERENCES sqe.t_prestation_prs(prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT c_ck_pru_datefin CHECK (pru_datefin > pru_datedebut)
-);
-
-COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datedebut IS 'Date de début de la validité du prix';
-COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datefin IS 'Date de fin de la validité du prix';
+COMMENT ON COLUMN sqe.t_prestation_prs.prs_pre_id IS 'Identifiant du prestataire, soit titulaire du marché soit sous traitant';
+COMMENT ON COLUMN sqe.t_prestation_prs.prs_mar_id IS 'Identifiant marché';
+COMMENT ON COLUMN sqe.t_prestation_prs.prs_id IS 'Identifiant de la prestation';
 
 
 
-CREATE OR REPLACE FUNCTION sqe.checkoverlapsprixunitaire()
- RETURNS trigger
- LANGUAGE plpgsql
- AS $function$   
-
-  DECLARE nbChevauchements  INTEGER    ;
-
-  BEGIN
-
-    -- verification des non-chevauchements pour les operations du dispositif
-    SELECT COUNT(*) INTO nbChevauchements
-    FROM   sqe.t_prixunitaire_pru
-    WHERE  pru_prs_id = NEW.pru_prs_id 
-           AND (pru_datedebut, pru_datefin) OVERLAPS (NEW.pru_datedebut, NEW.pru_datefin)
-    ;
-
-    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
-    IF (nbChevauchements > 1) THEN 
-      RAISE EXCEPTION 'Il est impossible d''avoir plusieurs prix unitaires pour une même date'  ;
-    END IF  ;
-
-    RETURN NEW ;
-  END  ;
-$function$;
-
-CREATE TRIGGER update_pru  AFTER INSERT OR UPDATE ON 
-    sqe.t_prixunitaire_pru FOR EACH ROW EXECUTE FUNCTION sqe.checkoverlapsprixunitaire();
-
-  
   
 CREATE TABLE refer.tr_statutpresta_stp(
 stp_nom TEXT PRIMARY KEY,
@@ -225,5 +181,162 @@ COMMENT ON COLUMN sqe.t_boncommande_bco.bco_stp_nom IS 'Statut du bon de command
  * 
  */
 
+CREATE TABLE refer.tr_parametre_par(
+par_cdparametre TEXT PRIMARY KEY,
+par_nomparametre TEXT,
+par_statutparametre TEXT,
+par_nomcourt TEXT,
+par_codecas TEXT
+);
 
+
+
+CREATE TABLE refer.tr_uniteparametre_uni(
+uni_codesandreunite TEXT PRIMARY KEY,
+uni_symbole TEXT
+);
+
+CREATE TABLE refer.tr_fraction_fra(
+fra_codefraction TEXT PRIMARY KEY,
+fra_nomfraction TEXT
+);
+
+CREATE TABLE refer.tr_methode_met(
+met_code TEXT PRIMARY KEY,
+met_nom TEXT
+);
+
+/*
+ * 
+ * 
+ */
+
+CREATE TABLE sqe.t_runanalytique_run(
+run_id serial PRIMARY KEY,
+run_nom TEXT,
+run_met_code TEXT, -- FOREIGN KEY methode sandre
+CONSTRAINT c_fk_run_met_code FOREIGN KEY (run_met_code) 
+REFERENCES refer.tr_methode_met  (met_code) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+
+/*
+ * Un programme type est un ensemble de run analytiques
+ * 
+ */
+DROP TABLE IF EXISTS sqe.t_parametreprogrammetype_ppt;
+CREATE TABLE sqe.t_parametreprogrammetype_ppt(
+ppt_id serial PRIMARY KEY,
+ppt_prs_id INTEGER, -- Identifiant de la prestation
+ppt_mar_id INTEGER NOT NULL,
+ppt_run_id INTEGER, --FK t_runanalytique_run. Un paramètre peut être analysé par plusieurs run analytiques différents au sein d'un programme type
+ppt_par_cdparametre TEXT, -- code SANDRE du paramètre (clé étrangère)
+ppt_codetemporaireparametre TEXT, -- code temporaire en attente de code SANDRE
+ppt_fra_codefraction TEXT,
+ppt_nomparametre TEXT,
+ppt_uni_codesandreunite TEXT,
+ppt_analyseinsitu BOOLEAN,
+ppt_limitequantif NUMERIC, -- limite garantie par le prestataire
+ppt_incertitude NUMERIC,  -- incertitude garantie par le prestataire
+ppt_accreditation BOOLEAN, --Accreditation du prestataire 
+ppt_commentaireparametre TEXT, -- Commentaire sur le paramètre du prestataire dans le marché en cours
+CONSTRAINT c_fk_ppt_prs_id FOREIGN KEY (ppt_prs_id) 
+REFERENCES sqe.t_prestation_prs  (prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_fk_ppt_mar_id FOREIGN KEY (ppt_mar_id) 
+REFERENCES sqe.t_marche_mar  (mar_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_fk_ppt_par_cdparametre FOREIGN KEY (ppt_par_cdparametre) 
+REFERENCES refer.tr_parametre_par (par_cdparametre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_ppt_uni_codesandreunite FOREIGN KEY (ppt_uni_codesandreunite) 
+REFERENCES refer.tr_uniteparametre_uni (uni_codesandreunite) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_ppt_fra_codefraction FOREIGN KEY (ppt_fra_codefraction) 
+REFERENCES refer.tr_fraction_fra (fra_codefraction) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_ppt_run_id FOREIGN KEY (ppt_run_id) 
+REFERENCES sqe.t_runanalytique_run (run_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_ck_nn_codetemporaireparametre CHECK (ppt_par_cdparametre IS NULL  
+AND ppt_codetemporaireparametre IS  NOT NULL) -- si le code sandre n'existe pas il faut un code temporaire
+);
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_prs_id IS 'Identifiant de la prestation';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_par_cdparametre IS 'Code SANDRE du paramètre (clé étrangère)';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_codetemporaireparametre IS 'Code temporaire en attente de code SANDRE';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_limitequantif IS 'Limite garantie par le prestataire';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_incertitude IS 'Code temporaire en attente de code SANDRE';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_accreditation IS 'Accreditation du prestataire ';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_commentaireparametre IS 'Commentaire sur le paramètre du prestataire dans le marché en cours';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_run_id IS 'FK t_runanalytique_run. Un paramètre peut être analysé par plusieurs run analytiques différents au sein d''un programme type';
+
+
+
+/*
+ * 
+ * Table des prix unitaires : prix des prestations de type programme type, mais aussi les réunion,
+ * flaconnage, prélèvements. Dans les prix d'analyse d'un programme type on commande des run analytiques, si un run analytique 
+ * est incomplet il faudra enlever le prix du run analytique manquant 
+ * 
+*/
+
+DROP TABLE IF EXISTS sqe.t_prixunitaire_pru CASCADE;
+CREATE TABLE sqe.t_prixunitaire_pru(
+pru_id serial PRIMARY KEY,
+pru_datedebut DATE,
+pru_datefin DATE,
+pru_valeur NUMERIC, 
+CONSTRAINT c_ck_pru_datefin CHECK (pru_datefin > pru_datedebut)
+);
+
+COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datedebut IS 'Date de début de la validité du prix';
+COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datefin IS 'Date de fin de la validité du prix';
+
+-- table héritée éléments du marché flacon, réunion ....
+
+CREATE TABLE sqe.t_prixunitaireprestation_prp (
+prp_prs_id INTEGER,
+CONSTRAINT  c_fk_prp_prs_id FOREIGN KEY (prp_prs_id) 
+REFERENCES sqe.t_prestation_prs(prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_ck_pru_datefin CHECK (pru_datefin > pru_datedebut)
+)INHERITS (sqe.t_prixunitaire_pru) ;
+
+CREATE TABLE sqe.t_prixunitairerunanalytique_prr (
+prr_mar_id INTEGER,
+prr_run_id INTEGER,
+CONSTRAINT  c_fk_prr_mar_id FOREIGN KEY (prr_mar_id) 
+REFERENCES sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_fk_prr_run_id FOREIGN KEY (prr_run_id) 
+REFERENCES sqe.t_runanalytique_run (run_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_ck_pru_datefin CHECK (pru_datefin > pru_datedebut)
+)INHERITS (sqe.t_prixunitaire_pru) ;
+
+
+CREATE OR REPLACE FUNCTION sqe.checkoverlapsprixunitaire()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ AS $function$   
+
+  DECLARE nbChevauchements  INTEGER    ;
+
+  BEGIN
+
+    -- verification des non-chevauchements pour les operations du dispositif
+    SELECT COUNT(*) INTO nbChevauchements
+    FROM   sqe.t_prixunitaire_pru
+    WHERE  pru_prs_id = NEW.pru_prs_id 
+           AND (pru_datedebut, pru_datefin) OVERLAPS (NEW.pru_datedebut, NEW.pru_datefin)
+    ;
+
+    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
+    IF (nbChevauchements > 1) THEN 
+      RAISE EXCEPTION 'Il est impossible d''avoir plusieurs prix unitaires pour une même date'  ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$;
+
+CREATE TRIGGER update_pru  AFTER INSERT OR UPDATE ON 
+    sqe.t_prixunitaire_pru FOR EACH ROW EXECUTE FUNCTION sqe.checkoverlapsprixunitaire();
+
+CREATE TRIGGER update_prp  AFTER INSERT OR UPDATE ON 
+    sqe.t_prixunitaireprestation_prp FOR EACH ROW EXECUTE FUNCTION sqe.checkoverlapsprixunitaire();
+  
+CREATE TRIGGER update_prr  AFTER INSERT OR UPDATE ON 
+    sqe.t_prixunitairerunanalytique_prr FOR EACH ROW EXECUTE FUNCTION sqe.checkoverlapsprixunitaire();
 
