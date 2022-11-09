@@ -4,8 +4,8 @@ CREATEDB -U postgres libresqe
 
 psql -U postgres -c "CREATE EXTENSION POSTGIS" libresqe
 #creation des deux schemas
-psql -U postgres -c "CREATE SCHEMA refer"
-psql -U postgres -c "CREATE SCHEMA sqe"
+psql -U postgres -c "CREATE SCHEMA refer" libresqe
+psql -U postgres -c "CREATE SCHEMA sqe" libresqe
 #psql -U postgres -f "script/createrole.sql" libresqe 
 
 # exemple de sauvegarde : base complète (restaurer avec psql)
