@@ -477,6 +477,21 @@ qal_definition TEXT);
 COMMENT ON TABLE refer.tr_rdd_rdd IS 'Code des qualifications d''analyse';
 
 
+CREATE TABLE sqe.depotfichier_dfi(
+dfi_iddepot SERIAL PRIMARY KEY,
+dfi_deposant TEXT, -- code sandre de l'intervenant
+dfi_horodate TIMESTAMP,
+dfi_nomfichierdepos TEXT,
+dfi_nblignesanalysedepos INTEGER,
+dfi_bddorigine TEXT, -- Je me souviens plus ce que c'est, faut il une clé étrangère ?
+dfi_bco_id INTEGER NOT NULL,
+dfi_commentaires TEXT,
+CONSTRAINT c_fk_dfi_deposant FOREIGN KEY (dfi_deposant) REFERENCES 
+ refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_dfi_bco_id FOREIGN KEY (dfi_bco_id) REFERENCES 
+ sqe.t_boncommande_bco  (bco_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 DROP TABLE IF EXISTS sqe.t_resultat_res CASCADE;
 CREATE TABLE sqe.t_resultat_res(
 res_stm_cdstationmesureauxsurface TEXT,
@@ -486,12 +501,7 @@ CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstation
 refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-CREATE TABLE sqe.depotfichier_dfi(
-dfi_deposant
 
-CONSTRAINT c_fk_dfi_deposant 
-
-)
 
 CREATE TABLE sqe.t_resultatanalyse_rea(
 rea_cdsupport TEXT, 
@@ -506,11 +516,11 @@ rea_cdrqana TEXT,
 rea_cdinsituana TEXT,
 rea_profondeurpre NUMERIC,
 rea_cddifficulteana NUMERIC,
-rea ldana NUMERIC, -- ? NUMERIC
-rea lqana NUMERIC, -- ? NUMERIC
+rea_ldana NUMERIC, -- ? NUMERIC
+rea_lqana NUMERIC, -- ? NUMERIC
 rea_lsana NUMERIC,
 rea_cdmetfractionnement TEXT,
-rea cdmethode TEXT,
+rea_cdmethode TEXT,
 rea_rdtextration NUMERIC,
 rea_cdmethodeextraction TEXT,
 rea_cdaccreana TEXT,
@@ -523,14 +533,14 @@ rea_rdd_cdrdd TEXT, --FK
 rea_cdproducteur TEXT, --FK
 rea_cdpreleveur TEXT, --FK
 rea_cdlaboratoire TEXT,--FK
-rea_iddepot TEXT,
+rea_dfi_iddepot INTEGER NOT NULL,
 rea_datemodif DATE DEFAULT NOW()::date,
 CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
 refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
 CONSTRAINT c_fk_rea_par_cdparametre FOREIGN KEY (rea_par_cdparametre) REFERENCES 
 refer.tr_parametre_par(par_cdparametre) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_rea_qal_cdqualana FOREIGN KEY (rea_qal_cdqualana) REFERENCES 
- refer.tr_qualificationana_qal(qal_cdqualana) ON UPDATE CASCADE ON DELETE RESTRICT,
+ refer.tr_qualificationana_qal(qal_code) ON UPDATE CASCADE ON DELETE RESTRICT,
  CONSTRAINT c_fk_rea_san_cdstatutana FOREIGN KEY (rea_san_cdstatutana) REFERENCES 
  refer.tr_statutanalyse_san(san_cdstatutana) ON UPDATE CASCADE ON DELETE RESTRICT,
  CONSTRAINT c_fk_rea_cdproducteur FOREIGN KEY (rea_cdproducteur) REFERENCES 
@@ -541,4 +551,34 @@ CONSTRAINT c_fk_rea_cdpreleveur FOREIGN KEY (rea_cdpreleveur) REFERENCES
  refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_rea_cdlaboratoire FOREIGN KEY (rea_cdlaboratoire) REFERENCES 
  refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
-) INHERITS ;
+ CONSTRAINT c_fk_rea_dfi_iddepot FOREIGN KEY (rea_dfi_iddepot) REFERENCES 
+ sqe.depotfichier_dfi (dfi_iddepot) ON UPDATE CASCADE ON DELETE CASCADE
+) INHERITS (sqe.t_resultat_res);
+
+
+CREATE TABLE sqe.t_resultatcondenvir_rec(
+rec_par_cdparametre TEXT,
+rec_rsparenv TEXT,
+rec_cdunitemesure TEXT,
+rec_cdrqparenv TEXT,
+rec_cdstatutparenv TEXT,
+rec_qal_cdqualana INTEGER,
+rec_commentaireparenv TEXT, 
+rec_dateparenv Date,
+rec_heureparenv TIME,
+rec_met_code TEXT,
+rec_cdproducteur TEXT,
+rec_cdpreleveur TEXT,
+CONSTRAINT c_fk_rec_par_cdparametre FOREIGN KEY (rec_par_cdparametre) REFERENCES 
+refer.tr_parametre_par(par_cdparametre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_rec_qal_cdqualana FOREIGN KEY (rec_qal_cdqualana) REFERENCES 
+refer.tr_qualificationana_qal(qal_code) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_rec_cdproducteur FOREIGN KEY (rec_cdproducteur) REFERENCES 
+refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_rec_cdpreleveur FOREIGN KEY (rec_cdpreleveur) REFERENCES 
+refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_rec_met_code FOREIGN KEY (rec_met_code) REFERENCES 
+refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT
+ ) INHERITS (sqe.t_resultat_res);
