@@ -351,11 +351,14 @@ CREATE TRIGGER update_prr  AFTER INSERT OR UPDATE ON
 
 CREATE TABLE sqe.ts_suivi_maj(
 ts_table TEXT, -- nom de la table
-ts_date DATE, -- Date de mise à jour de la base
+ts_date DATE -- Date de mise à jour de la base
 );  
 
 
 CREATE TABLE sqe.ts_suivi_maj_sqe() INHERITS(sqe.ts_suivi_maj);  
 
-CREATE TABLE refer.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj); 
-   
+CREATE TABLE sqe.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj); 
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_fraction_fra', '1950-01-01');
