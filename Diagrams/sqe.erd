@@ -2,19 +2,19 @@
 <diagram version="1" name="sqe.erd">
 	<entities>
 		<data-source id="postgres-jdbc-1841e7dfd15-4d76059b8b1c4545">
-			<entity id="1" name="t_marche_mar" fq-name="sqe.t_marche_mar" order="0" color-bg="53,60,65" x="1711" y="317">
+			<entity id="1" name="t_marche_mar" fq-name="sqe.t_marche_mar" order="0" color-bg="0,255,0" x="1312" y="35">
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="2" name="t_parametreprogrammetype_ppt" fq-name="sqe.t_parametreprogrammetype_ppt" order="1" color-bg="53,60,65" x="20" y="20">
+			<entity id="2" name="t_parametreprogrammetype_ppt" fq-name="sqe.t_parametreprogrammetype_ppt" order="1" color-bg="64,128,128" x="20" y="20">
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="3" name="t_prestation_prs" fq-name="sqe.t_prestation_prs" order="2" color-bg="53,60,65" x="1094" y="470">
+			<entity id="3" name="t_prestation_prs" fq-name="sqe.t_prestation_prs" order="2" color-bg="128,128,255" x="968" y="518">
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="4" name="t_prixunitaire_pru" fq-name="sqe.t_prixunitaire_pru" order="3" color-bg="53,60,65" x="1094" y="979">
+			<entity id="4" name="t_prixunitaire_pru" fq-name="sqe.t_prixunitaire_pru" order="3" color-bg="255,128,64" x="4" y="636">
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
@@ -26,44 +26,44 @@
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="7" name="t_runanalytique_run" fq-name="sqe.t_runanalytique_run" order="6" color-bg="53,60,65" x="1094" y="310">
+			<entity id="7" name="t_runanalytique_run" fq-name="sqe.t_runanalytique_run" order="6" color-bg="53,60,65" x="533" y="446">
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="8" name="tr_fraction_fra" fq-name="refer.tr_fraction_fra" order="7" x="20" y="852">
+			<entity id="8" name="tr_fraction_fra" fq-name="refer.tr_fraction_fra" order="7" color-bg="255,128,64" x="20" y="852">
 				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="9" name="tr_intervenantsandre_isa" fq-name="refer.tr_intervenantsandre_isa" order="8" x="1094" y="1141">
+			<entity id="9" name="tr_intervenantsandre_isa" fq-name="refer.tr_intervenantsandre_isa" order="8" x="619" y="1093">
 				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="10" name="tr_methode_met" fq-name="refer.tr_methode_met" order="9" x="1094" y="852">
+			<entity id="10" name="tr_parametre_par" fq-name="refer.tr_parametre_par" order="9" color-bg="255,128,64" x="588" y="668">
 				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="11" name="tr_parametre_par" fq-name="refer.tr_parametre_par" order="10" x="1711" y="968">
+			<entity id="11" name="tr_perimetre_per" fq-name="refer.tr_perimetre_per" order="10" color-bg="255,128,64" x="1004" y="855">
 				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="12" name="tr_perimetre_per" fq-name="refer.tr_perimetre_per" order="11" x="20" y="991">
+			<entity id="12" name="tr_prestataire_pre" fq-name="refer.tr_prestataire_pre" order="14" color-bg="255,128,64" x="185" y="995">
 				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="13" name="tr_prestataire_pre" fq-name="refer.tr_prestataire_pre" order="15" x="20" y="1256">
+			<entity id="13" name="tr_statutpresta_stp" fq-name="refer.tr_statutpresta_stp" order="11" color-bg="255,128,64" x="992" y="713">
 				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="14" name="tr_statutpresta_stp" fq-name="refer.tr_statutpresta_stp" order="12" x="1711" y="852">
+			<entity id="14" name="tr_uniteparametre_uni" fq-name="refer.tr_uniteparametre_uni" order="12" color-bg="255,128,0" x="672" y="855">
 				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="15" name="tr_uniteparametre_uni" fq-name="refer.tr_uniteparametre_uni" order="13" x="2089" y="852">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="16" name="t_boncommande_bco" fq-name="sqe.t_boncommande_bco" order="14" color-bg="53,60,65" x="20" y="621">
+			<entity id="15" name="t_boncommande_bco" fq-name="sqe.t_boncommande_bco" order="13" color-bg="0,128,192" x="1661" y="275">
 				<path name="sqe"/>
+				<path name="libresqe"/>
+			</entity>
+			<entity id="16" name="tr_methode_met" fq-name="refer.tr_methode_met" order="15" color-bg="255,128,64" x="396" y="849">
+				<path name="refer"/>
 				<path name="libresqe"/>
 			</entity>
 		</data-source>
@@ -74,10 +74,10 @@
 		<relation name="c_fk_prr_mar_id" fq-name="sqe.t_prixunitairerunanalytique_prr.c_fk_prr_mar_id" type="fk" pk-ref="1" fk-ref="6"/>
 		<relation name="c_fk_ppt_prs_id" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_prs_id" type="fk" pk-ref="3" fk-ref="2"/>
 		<relation name="c_fk_prp_prs_id" fq-name="sqe.t_prixunitaireprestation_prp.c_fk_prp_prs_id" type="fk" pk-ref="3" fk-ref="5"/>
-		<relation name="c_fk_bco_prs_id" fq-name="sqe.t_boncommande_bco.c_fk_bco_prs_id" type="fk" pk-ref="3" fk-ref="16"/>
+		<relation name="c_fk_bco_prs_id" fq-name="sqe.t_boncommande_bco.c_fk_bco_prs_id" type="fk" pk-ref="3" fk-ref="15"/>
 		<relation name="sqe.t_prixunitaireprestation_prp-&gt;sqe.t_prixunitaire_pru" fq-name="sqe.t_prixunitaireprestation_prp.&quot;sqe.t_prixunitaireprestation_prp-&gt;sqe.t_prixunitaire_pru&quot;" type="inheritance" pk-ref="5" fk-ref="5">
 			<bend type="rel" x="314" y="589"/>
-			<bend type="rel" x="137" y="605"/>
+			<bend type="abs" x="162" y="618"/>
 		</relation>
 		<relation name="sqe.t_prixunitairerunanalytique_prr-&gt;sqe.t_prixunitaire_pru" fq-name="sqe.t_prixunitairerunanalytique_prr.&quot;sqe.t_prixunitairerunanalytique_prr-&gt;sqe.t_prixunitaire_pru&quot;" type="inheritance" pk-ref="6" fk-ref="6">
 			<bend type="rel" x="339" y="497"/>
@@ -85,6 +85,6 @@
 		</relation>
 		<relation name="c_fk_ppt_run_id" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_run_id" type="fk" pk-ref="7" fk-ref="2"/>
 		<relation name="c_fk_prr_run_id" fq-name="sqe.t_prixunitairerunanalytique_prr.c_fk_prr_run_id" type="fk" pk-ref="7" fk-ref="6"/>
-		<relation name="c_fk_pre_codesandre" fq-name="refer.tr_prestataire_pre.c_fk_pre_codesandre" type="fk" pk-ref="9" fk-ref="13"/>
+		<relation name="c_fk_pre_codesandre" fq-name="refer.tr_prestataire_pre.c_fk_pre_codesandre" type="fk" pk-ref="9" fk-ref="12"/>
 	</relations>
 </diagram>

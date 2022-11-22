@@ -27,6 +27,12 @@ psql -U postgres -f "libresqe_ref_matable.sql" libresqe
 
 
 # exemple de sauvegarde : base complète (restaurer avec pg_restore = format compressé)
+
+
 pg_dump -U postgres -Fc -f "libresqe.backup" libresqe
 # restauration (sur une base vide)
 pg_restore -d libresqe -U postgres libresqe.backup
+
+
+# sauvegarde Cédric
+pg_dump -U postgres -f "libreSQEbdd.backup" -Fc --schema temp --schema sqe --schema refer libresqe
