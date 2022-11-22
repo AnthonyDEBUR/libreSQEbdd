@@ -362,3 +362,46 @@ CREATE TABLE sqe.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj);
 INSERT INTO sqe.ts_suivi_maj_refer
 (ts_table, ts_date)
 VALUES('tr_fraction_fra', '1950-01-01');
+
+
+-- trigger for sqe ts_suivi_maj_sqe()
+
+CREATE OR REPLACE FUNCTION sqe.fn_update_date_refer() RETURNS TRIGGER AS
+$$
+DECLARE
+        sql TEXT;
+BEGIN
+  sql := format('UPDATE sqe.ts_suivi_maj_refer SET (ts_table, ts_date) =(''%s'', now()::date)', TG_ARGV[0]);
+    EXECUTE sql USING NEW;
+    RETURN new;
+END;
+$$
+language plpgsql;
+
+
+CREATE OR REPLACE FUNCTION sqe.fn_update_date_sqe() RETURNS TRIGGER AS
+$$
+DECLARE
+        sql TEXT;
+BEGIN
+  sql := format('UPDATE sqe.ts_suivi_maj_sqe SET  ts_date = now()::date 
+              WHERE ts_table=''%s''', TG_ARGV[0]);
+    EXECUTE sql USING NEW;
+    RETURN new;
+END;
+$$
+language plpgsql;
+
+-- Le Trigger un à créer par table 
+
+DROP TRIGGER IF EXISTS trg_date_tr_fraction_fra ON refer.tr_fraction_fra;
+CREATE OR REPLACE TRIGGER trg_date_tr_fraction_fra
+     AFTER INSERT OR UPDATE ON refer.tr_fraction_fra
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_fraction_fra");
+   
+INSERT INTO refer.tr_fraction_fra(fra_codefraction, fra_nomfraction)
+VALUES('titi5', 'toto5');
+   
+   
+SELECT FORMAT('UPDATE sqe.ts_suivi_maj_refer SET (ts_table, ts_date) =(''%I'', now()::date)', 'tr_fraction_fra')
