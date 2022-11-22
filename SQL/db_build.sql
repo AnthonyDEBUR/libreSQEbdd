@@ -502,7 +502,7 @@ refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON D
 );
 
 
-
+-- table héritée 
 CREATE TABLE sqe.t_resultatanalyse_rea(
 rea_cdsupport TEXT, 
 rea_cdfractionanalysee TEXT,
@@ -555,7 +555,7 @@ CONSTRAINT c_fk_rea_cdlaboratoire FOREIGN KEY (rea_cdlaboratoire) REFERENCES
  sqe.depotfichier_dfi (dfi_iddepot) ON UPDATE CASCADE ON DELETE CASCADE
 ) INHERITS (sqe.t_resultat_res);
 
-
+-- table héritée 
 CREATE TABLE sqe.t_resultatcondenvir_rec(
 rec_par_cdparametre TEXT,
 rec_rsparenv TEXT,
@@ -581,4 +581,41 @@ CONSTRAINT c_fk_rec_cdpreleveur FOREIGN KEY (rec_cdpreleveur) REFERENCES
 refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_rec_met_code FOREIGN KEY (rec_met_code) REFERENCES 
 refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT
+ ) INHERITS (sqe.t_resultat_res);
+ 
+ 
+ 
+ CREATE TABLE sqe.t_resultatoperation_reo(
+ reo_coordxprel NUMERIC,
+ reo_coordyprel NUMERIC,
+ reo_projectprel TEXT,
+ reo_cdsupport TEXT,
+ reo_met_code TEXT,
+ reo_heureprel TIME,
+ reo_datefinprel DATE,
+ reo_heurefinprel TIME,
+ reo_cdzoneverticaleprospectee TEXT,
+ reo_profondeurprel NUMERIC,
+ reo_cddifficulteprel TEXT,
+ reo_cdaccredprel TEXT,
+ reo_agreprel TEXT,
+ reo_cdfinaliteprel TEXT,
+ reo_commentairesprel TEXT,
+ reo_rdd_cdrdd TEXT,
+ CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_reo_met_code FOREIGN KEY (reo_met_code) REFERENCES 
+refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT,
+ CONSTRAINT c_fk_reo_rdd_cdrdd FOREIGN KEY (reo_rdd_cdrdd) REFERENCES 
+ refer.tr_rdd_rdd(rdd_cdrdd) ON UPDATE CASCADE ON DELETE RESTRICT
+ ) INHERITS (sqe.t_resultat_res);
+ 
+ 
+ 
+ CREATE TABLE sqe.t_resultatcondreceptechantillon_ree(
+ ree_datereceptech DATE,
+ ree_heurereceptech TIME,
+ ree_temperaturereceptech NUMERIC,
+ CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT-- il faut redéfinir les contraintes dans la TABLE héritée
  ) INHERITS (sqe.t_resultat_res);
