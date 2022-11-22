@@ -345,3 +345,17 @@ CREATE TRIGGER update_prp  AFTER INSERT OR UPDATE ON
 CREATE TRIGGER update_prr  AFTER INSERT OR UPDATE ON 
     sqe.t_prixunitairerunanalytique_prr FOR EACH ROW EXECUTE FUNCTION sqe.checkoverlapsprixunitaire();
 
+
+   
+-- table de suivi des mises à jour des tables du shéma sqe
+
+CREATE TABLE sqe.ts_suivi_maj(
+ts_table TEXT, -- nom de la table
+ts_date DATE, -- Date de mise à jour de la base
+);  
+
+
+CREATE TABLE sqe.ts_suivi_maj_sqe() INHERITS(sqe.ts_suivi_maj);  
+
+CREATE TABLE refer.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj); 
+   
