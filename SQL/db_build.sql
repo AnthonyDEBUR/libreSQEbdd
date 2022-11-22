@@ -9,7 +9,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 DROP TABLE IF EXISTS refer.tr_intervenantsandre_isa CASCADE;
 CREATE TABLE refer.tr_intervenantsandre_isa(
 isa_codesandre TEXT PRIMARY KEY,
-isa_siret TEXT,
 isa_nom TEXT,
 isa_statut TEXT,
 isa_datecreation date,
@@ -198,7 +197,8 @@ par_codecas TEXT
 
 CREATE TABLE refer.tr_uniteparametre_uni(
 uni_codesandreunite TEXT PRIMARY KEY,
-uni_symbole TEXT
+uni_symbole TEXT,
+uni_lblsandreunite TEXT
 );
 
 CREATE TABLE refer.tr_fraction_fra(
@@ -363,9 +363,27 @@ INSERT INTO sqe.ts_suivi_maj_refer
 (ts_table, ts_date)
 VALUES('tr_fraction_fra', '1950-01-01');
 
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_intervenantsandre_isa', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_methode_met', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_parametre_par', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_uniteparametre_uni', '1950-01-01');
+
 
 -- trigger for refer ts_suivi_maj_refer()
-
+/* permet d'acualiser la date de dernière mise à jour d'une table du schéma réfer
+ * dans la table sqe.ts_suivi_maj_refer
+ */ 
 CREATE OR REPLACE FUNCTION sqe.fn_update_date_refer() RETURNS TRIGGER AS
 $$
 DECLARE
@@ -393,6 +411,7 @@ END;
 $$
 language plpgsql;
 
+-- met a jour automatiquement le suivi de la date d'actualisation de la table tr_fraction_fra
 -- Le Trigger un à créer par table (ici exemple tr_fraction_fra
 
 DROP TRIGGER IF EXISTS trg_date_tr_fraction_fra ON refer.tr_fraction_fra;
@@ -402,6 +421,32 @@ CREATE OR REPLACE TRIGGER trg_date_tr_fraction_fra
      EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_fraction_fra");
 
 
+DROP TRIGGER IF EXISTS trg_date_tr_intervenantsandre_isa ON refer.tr_intervenantsandre_isa;
+CREATE OR REPLACE TRIGGER trg_date_tr_intervenantsandre_isa
+     AFTER INSERT OR UPDATE ON refer.tr_intervenantsandre_isa
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_intervenantsandre_isa");    
+    
+DROP TRIGGER IF EXISTS trg_date_tr_methode_met ON refer.tr_methode_met;
+CREATE OR REPLACE TRIGGER trg_date_tr_methode_met
+     AFTER INSERT OR UPDATE ON refer.tr_methode_met
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_methode_met");       
+    
+DROP TRIGGER IF EXISTS trg_date_tr_parametre_par ON refer.tr_parametre_par;
+CREATE OR REPLACE TRIGGER trg_date_tr_parametre_par
+     AFTER INSERT OR UPDATE ON refer.tr_parametre_par
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_parametre_par");           
+    
+DROP TRIGGER IF EXISTS trg_date_tr_uniteparametre_uni ON refer.tr_uniteparametre_uni;
+CREATE OR REPLACE TRIGGER trg_date_tr_uniteparametre_uni
+     AFTER INSERT OR UPDATE ON refer.tr_uniteparametre_uni
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_uniteparametre_uni");
+    
+    
+    
 /*   
 INSERT INTO refer.tr_fraction_fra(fra_codefraction, fra_nomfraction)
 VALUES('titi5', 'toto5');
@@ -410,29 +455,7 @@ VALUES('titi5', 'toto5');
 -- SELECT FORMAT('UPDATE sqe.ts_suivi_maj_refer SET (ts_table, ts_date) =(''%I'', now()::date)', 'tr_fraction_fra')
 
 
-INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_intervenantsandre_isa', '1950-01-01');
 
-INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_intervenantsandre_isa', '1950-01-01');
-
-INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_methode_met', '1950-01-01');
-
-INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_parametre_par', '1950-01-01');
-
-INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_perimetre_per', '1950-01-01');
-
-INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_uniteparametre_uni', '1950-01-01');
 
 
 CREATE TABLE sqe.t_realisationcommande_rec(
