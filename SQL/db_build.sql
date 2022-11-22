@@ -28,7 +28,7 @@ isa_codepostal INTEGER
 ALTER TABLE refer.tr_intervenantsandre_isa OWNER TO grp_eptbv_planif_dba;
 
 
-
+-- test
 
 
 
@@ -152,18 +152,21 @@ stp_nom TEXT PRIMARY KEY,
 stp_description TEXT
 );
 
+INSERT INTO refer.tr_statutpresta_stp VALUES ('Programmé', 'Bon de commande prêt à être émis');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Emis', 'Bon de commande emis');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Prélevé', 'Prélèvement fait');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Analysé', 'Analyse rendue');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
 
+-- DROP TABLE sqe.t_boncommande_bco 
 
 CREATE TABLE sqe.t_boncommande_bco(
 bco_id serial PRIMARY KEY,
 bco_prs_id integer,
 bco_per_nom TEXT,
 bco_refcommande TEXT,
-bco_stp_nom TEXT, -- Statut 
+bco_stp_nom TEXT, -- Statut
+bco_date_prev DATE, -- Date prévisionnelle de la prestation 
 bco_commentaires TEXT,
 bco_nbpresta INTEGER,
 CONSTRAINT c_fk_bco_prs_id FOREIGN KEY (bco_prs_id) 
@@ -173,8 +176,10 @@ REFERENCES refer.tr_perimetre_per (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT
 CONSTRAINT c_fk_bco_stp_nom FOREIGN KEY (bco_stp_nom) 
 REFERENCES refer.tr_statutpresta_stp (stp_nom) ON UPDATE CASCADE ON DELETE RESTRICT
 );
+COMMENT ON COLUMN sqe.t_boncommande_bco.bco_per_nom IS 'Périmètre du bon de commande (ex territoireX_projetY';
+COMMENT ON COLUMN sqe.t_boncommande_bco.bco_refcommande IS 'Référence du bon de commande';
 COMMENT ON COLUMN sqe.t_boncommande_bco.bco_stp_nom IS 'Statut du bon de commande';
-
+COMMENT ON COLUMN sqe.t_boncommande_bco.bco_date_prev IS 'Date prévisionnelle de la prestation';
 
 /*
  * programme type
@@ -340,3 +345,20 @@ CREATE TRIGGER update_prp  AFTER INSERT OR UPDATE ON
 CREATE TRIGGER update_prr  AFTER INSERT OR UPDATE ON 
     sqe.t_prixunitairerunanalytique_prr FOR EACH ROW EXECUTE FUNCTION sqe.checkoverlapsprixunitaire();
 
+
+   
+-- table de suivi des mises à jour des tables du shéma sqe
+
+CREATE TABLE sqe.ts_suivi_maj(
+ts_table TEXT, -- nom de la table
+ts_date DATE -- Date de mise à jour de la base
+);  
+
+
+CREATE TABLE sqe.ts_suivi_maj_sqe() INHERITS(sqe.ts_suivi_maj);  
+
+CREATE TABLE sqe.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj); 
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_fraction_fra', '1950-01-01');
