@@ -162,7 +162,7 @@ INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
 
 CREATE TABLE sqe.t_boncommande_bco(
 bco_id serial PRIMARY KEY,
-bco_prs_id integer,
+bco_prs_id integer NOT NULL, -- attention dans la table t_resultatanalyse_rea on ignore le bco mais on en aura besoin, donc il faut NOT null
 bco_per_nom TEXT,
 bco_refcommande TEXT,
 bco_stp_nom TEXT, -- Statut
@@ -434,3 +434,111 @@ INSERT INTO sqe.ts_suivi_maj_refer
 (ts_table, ts_date)
 VALUES('tr_uniteparametre_uni', '1950-01-01');
 
+
+CREATE TABLE sqe.t_realisationcommande_rec(
+rec_id serial PRIMARY KEY,
+rec_bco_id INTEGER, -- identifiant du bon de commande est-ce utile la prestation est liée à un bon de commande (auquel cas il faut mettre non nul)?
+rec_dateprevi DATE,
+rec_daterealisation DATE,
+CONSTRAINT c_fk_rec_prs_id FOREIGN KEY (rec_prs_id) REFERENCES sqe.t_prestation_prs(prs_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+COMMENT ON COLUMN sqe.t_realisationcommande_rec.rec_prs_id IS 'clé étrangère, identifiant de la prestation';
+
+
+CREATE TABLE sqe.t_realisationcommandeprel_rep() INHERITS (sqe.t_realisationcommande_rec);
+CREATE TABLE  sqe.t_realisationcommandeautre_rea() INHERITS (sqe.t_realisationcommande_rec);
+
+CREATE TABLE refer.tr_stationmesure_stm(
+  stm_cdstationmesureauxsurface TEXT, 
+  stm_cdstationmesureinterne TEXT,
+  stm_lbstationmesureeauxsurface TEXT,
+  stm_x NUMERIC,
+  stm_y NUMERIC,
+  stm_commentaires TEXT,
+  geom geometry,
+  CONSTRAINT c_uk_stm_cdstationmesureauxsurface UNIQUE(stm_cdstationmesureauxsurface) );
+
+
+CREATE TABLE refer.tr_statutanalyse_san(
+san_cdstatutana INTEGER PRIMARY KEY,
+san_mnemostatutana TEXT NOT NULL);
+
+CREATE TABLE refer.tr_rdd_rdd(
+rdd_cdrdd TEXT PRIMARY KEY,
+rdd_nomrdd TEXT NOT NULL);
+COMMENT ON TABLE refer.tr_rdd_rdd IS 'Réseau de mesure - dispositif de collecte';
+
+CREATE TABLE refer.tr_qualificationana_qal(
+qal_code INTEGER PRIMARY KEY,
+qal_mnemo TEXT,
+qal_libelle TEXT,
+qal_definition TEXT);
+COMMENT ON TABLE refer.tr_rdd_rdd IS 'Code des qualifications d''analyse';
+
+
+DROP TABLE IF EXISTS sqe.t_resultat_res CASCADE;
+CREATE TABLE sqe.t_resultat_res(
+res_stm_cdstationmesureauxsurface TEXT,
+res_codeprel TEXT,
+res_dateprel DATE,
+CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+CREATE TABLE sqe.depotfichier_dfi(
+dfi_deposant
+
+CONSTRAINT c_fk_dfi_deposant 
+
+)
+
+CREATE TABLE sqe.t_resultatanalyse_rea(
+rea_cdsupport TEXT, 
+rea_cdfractionanalysee TEXT,
+rea_heureprel TIME, -- FAut il mettre time WITH time ZONE ?
+rea_dateana DATE,
+rea_heureana TIME,
+rea_par_cdparametre TEXT,
+rea_rsana TEXT,
+rea_cdunitemesure TEXT,
+rea_cdrqana TEXT,
+rea_cdinsituana TEXT,
+rea_profondeurpre NUMERIC,
+rea_cddifficulteana NUMERIC,
+rea ldana NUMERIC, -- ? NUMERIC
+rea lqana NUMERIC, -- ? NUMERIC
+rea_lsana NUMERIC,
+rea_cdmetfractionnement TEXT,
+rea cdmethode TEXT,
+rea_rdtextration NUMERIC,
+rea_cdmethodeextraction TEXT,
+rea_cdaccreana TEXT,
+rea_agreana TEXT,
+rea_san_cdstatutana INTEGER, --FK
+rea_qal_cdqualana INTEGER, --FK
+rea_commentairesana TEXT,
+rea_comresultatana TEXT,
+rea_rdd_cdrdd TEXT, --FK
+rea_cdproducteur TEXT, --FK
+rea_cdpreleveur TEXT, --FK
+rea_cdlaboratoire TEXT,--FK
+rea_iddepot TEXT,
+rea_datemodif DATE DEFAULT NOW()::date,
+CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_rea_par_cdparametre FOREIGN KEY (rea_par_cdparametre) REFERENCES 
+refer.tr_parametre_par(par_cdparametre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_rea_qal_cdqualana FOREIGN KEY (rea_qal_cdqualana) REFERENCES 
+ refer.tr_qualificationana_qal(qal_cdqualana) ON UPDATE CASCADE ON DELETE RESTRICT,
+ CONSTRAINT c_fk_rea_san_cdstatutana FOREIGN KEY (rea_san_cdstatutana) REFERENCES 
+ refer.tr_statutanalyse_san(san_cdstatutana) ON UPDATE CASCADE ON DELETE RESTRICT,
+ CONSTRAINT c_fk_rea_cdproducteur FOREIGN KEY (rea_cdproducteur) REFERENCES 
+ refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_rea_rdd_cdrdd FOREIGN KEY (rea_rdd_cdrdd) REFERENCES 
+ refer.tr_rdd_rdd(rdd_cdrdd) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_rea_cdpreleveur FOREIGN KEY (rea_cdpreleveur) REFERENCES 
+ refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_rea_cdlaboratoire FOREIGN KEY (rea_cdlaboratoire) REFERENCES 
+ refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
+) INHERITS ;
