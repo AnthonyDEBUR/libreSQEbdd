@@ -198,7 +198,8 @@ par_codecas TEXT
 
 CREATE TABLE refer.tr_uniteparametre_uni(
 uni_codesandreunite TEXT PRIMARY KEY,
-uni_symbole TEXT
+uni_symbole TEXT,
+uni_lblsandreunite TEXT
 );
 
 CREATE TABLE refer.tr_fraction_fra(
