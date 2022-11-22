@@ -362,3 +362,28 @@ CREATE TABLE sqe.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj);
 INSERT INTO sqe.ts_suivi_maj_refer
 (ts_table, ts_date)
 VALUES('tr_fraction_fra', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_intervenantsandre_isa', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_intervenantsandre_isa', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_methode_met', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_parametre_par', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_perimetre_per', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_uniteparametre_uni', '1950-01-01');
+
