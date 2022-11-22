@@ -9,7 +9,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 DROP TABLE IF EXISTS refer.tr_intervenantsandre_isa CASCADE;
 CREATE TABLE refer.tr_intervenantsandre_isa(
 isa_codesandre TEXT PRIMARY KEY,
-isa_siret TEXT,
 isa_nom TEXT,
 isa_statut TEXT,
 isa_datecreation date,
