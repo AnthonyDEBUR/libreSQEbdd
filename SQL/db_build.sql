@@ -364,7 +364,7 @@ INSERT INTO sqe.ts_suivi_maj_refer
 VALUES('tr_fraction_fra', '1950-01-01');
 
 
--- trigger for sqe ts_suivi_maj_sqe()
+-- trigger for refer ts_suivi_maj_refer()
 
 CREATE OR REPLACE FUNCTION sqe.fn_update_date_refer() RETURNS TRIGGER AS
 $$
@@ -378,6 +378,7 @@ END;
 $$
 language plpgsql;
 
+-- trigger for sqe ts_suivi_maj_sqe()
 
 CREATE OR REPLACE FUNCTION sqe.fn_update_date_sqe() RETURNS TRIGGER AS
 $$
@@ -392,16 +393,44 @@ END;
 $$
 language plpgsql;
 
--- Le Trigger un à créer par table 
+-- Le Trigger un à créer par table (ici exemple tr_fraction_fra
 
 DROP TRIGGER IF EXISTS trg_date_tr_fraction_fra ON refer.tr_fraction_fra;
 CREATE OR REPLACE TRIGGER trg_date_tr_fraction_fra
      AFTER INSERT OR UPDATE ON refer.tr_fraction_fra
      FOR EACH ROW
      EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_fraction_fra");
-   
+
+
+/*   
 INSERT INTO refer.tr_fraction_fra(fra_codefraction, fra_nomfraction)
 VALUES('titi5', 'toto5');
+ */  
    
-   
-SELECT FORMAT('UPDATE sqe.ts_suivi_maj_refer SET (ts_table, ts_date) =(''%I'', now()::date)', 'tr_fraction_fra')
+-- SELECT FORMAT('UPDATE sqe.ts_suivi_maj_refer SET (ts_table, ts_date) =(''%I'', now()::date)', 'tr_fraction_fra')
+
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_intervenantsandre_isa', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_intervenantsandre_isa', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_methode_met', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_parametre_par', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_perimetre_per', '1950-01-01');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_uniteparametre_uni', '1950-01-01');
+
