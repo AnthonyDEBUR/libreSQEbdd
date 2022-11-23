@@ -395,7 +395,7 @@ $$
 DECLARE
         sql TEXT;
 BEGIN
-  sql := format('UPDATE sqe.ts_suivi_maj_refer SET (ts_table, ts_date) =(''%s'', now()::date)', TG_ARGV[0]);
+  sql := format('UPDATE sqe.ts_suivi_maj_refer SET ts_date =now()::date WHERE ts_table = ''%s'', ', TG_ARGV[0]);
     EXECUTE sql USING NEW;
     RETURN new;
 END;
