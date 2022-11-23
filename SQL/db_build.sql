@@ -60,8 +60,14 @@ INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
 VALUES  ('UGVE', 'Unité gestion Vilaine Est');
 INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
 VALUES  ('UGVO', 'Unité gestion Vilaine Ouest');
-
-
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVE_PONT_BILLON', 'Unité gestion Vilaine Est - suivi spécifique captage de Pont-Billon');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVE_VALIERE', 'Unité gestion Vilaine Est - suivi spécifique captage de la Valière');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVO - IIF', 'Unité gestion Vilaine Ouest - suivi spécifique bassin Ille-Illet et Flume');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVO - VHBC', 'Unité gestion Vilaine Est - suivi spécifique territoire de Vallons de Haute-Bretagne Communauté');
 
 
 
@@ -494,9 +500,28 @@ COMMENT ON TABLE refer.tr_rdd_rdd IS 'Réseau de mesure - dispositif de collecte
 CREATE TABLE refer.tr_qualificationana_qal(
 qal_code INTEGER PRIMARY KEY,
 qal_mnemo TEXT,
-qal_libelle TEXT,
-qal_definition TEXT);
+qal_libelle TEXT);
 COMMENT ON TABLE refer.tr_rdd_rdd IS 'Code des qualifications d''analyse';
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(0, 'non définissable', 'Qualification non définissable');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(1, 'Correcte', 'Correcte');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(2, 'Incorrecte', 'Incorrecte');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(3, 'Incertaine', 'Incertaine');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(4, 'Non qualifié', 'Non qualifié');
 
 
 CREATE TABLE sqe.depotfichier_dfi(
