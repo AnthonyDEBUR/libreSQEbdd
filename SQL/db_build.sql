@@ -456,10 +456,9 @@ VALUES('titi5', 'toto5');
 
 
 
-
-
 CREATE TABLE sqe.t_realisationcommande_rec(
 rec_id serial PRIMARY KEY,
+rec_prs_id INTEGER,
 rec_bco_id INTEGER, -- identifiant du bon de commande est-ce utile la prestation est liée à un bon de commande (auquel cas il faut mettre non nul)?
 rec_dateprevi DATE,
 rec_daterealisation DATE,
