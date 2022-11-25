@@ -457,7 +457,11 @@ CREATE OR REPLACE TRIGGER trg_date_tr_uniteparametre_uni
      FOR EACH ROW
      EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_uniteparametre_uni");
     
-    
+DROP TRIGGER IF EXISTS trg_date_tr_rdd_rdd ON refer.tr_rdd_rdd;
+CREATE OR REPLACE TRIGGER trg_date_tr_rdd_rdd
+     AFTER INSERT OR UPDATE ON refer.tr_rdd_rdd
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_rdd_rdd");    
     
 /*   
 INSERT INTO refer.tr_fraction_fra(fra_codefraction, fra_nomfraction)
