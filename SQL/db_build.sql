@@ -386,6 +386,11 @@ INSERT INTO sqe.ts_suivi_maj_refer
 (ts_table, ts_date)
 VALUES('tr_uniteparametre_uni', '1950-01-01');
 
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_rdd_rdd', '1950-01-01');
+
+
 
 -- trigger for refer ts_suivi_maj_refer()
 /* permet d'acualiser la date de dernière mise à jour d'une table du schéma réfer
@@ -495,7 +500,8 @@ san_mnemostatutana TEXT NOT NULL);
 
 CREATE TABLE refer.tr_rdd_rdd(
 rdd_cdrdd TEXT PRIMARY KEY,
-rdd_nomrdd TEXT NOT NULL);
+rdd_nomrdd TEXT NOT NULL,
+rdd_statut TEXT);
 COMMENT ON TABLE refer.tr_rdd_rdd IS 'Réseau de mesure - dispositif de collecte';
 
 CREATE TABLE refer.tr_qualificationana_qal(
