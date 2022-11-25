@@ -390,7 +390,9 @@ INSERT INTO sqe.ts_suivi_maj_refer
 (ts_table, ts_date)
 VALUES('tr_rdd_rdd', '1950-01-01');
 
-
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date)
+VALUES('tr_stationmesure_stm', '1950-01-01');
 
 -- trigger for refer ts_suivi_maj_refer()
 /* permet d'acualiser la date de dernière mise à jour d'une table du schéma réfer
