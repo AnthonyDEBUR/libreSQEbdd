@@ -502,6 +502,29 @@ CREATE TABLE refer.tr_statutanalyse_san(
 san_cdstatutana INTEGER PRIMARY KEY,
 san_mnemostatutana TEXT NOT NULL);
 
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('1', 'Donnée brute');
+
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('2', 'Niveau 1');
+
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('3', 'Niveau 2');
+
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('4', 'Donnée interprétée');
+
+/*
+
+ Code	!  Mnémonique               !  Libellé
+----------------------------------------------------------------------
+    1	!  Donnée brute             !  Donnée brute
+    2	!  Niveau 1                 !  Donnée contrôlée niveau 1 (données contrôlées)
+    3	!  Niveau 2                 !  Donnée contrôlée niveau 2 (données validées)
+    4	!  Donnée interprétée       !  Donnée interprétée
+    
+  */
+      
 CREATE TABLE refer.tr_rdd_rdd(
 rdd_cdrdd TEXT PRIMARY KEY,
 rdd_nomrdd TEXT NOT NULL,
