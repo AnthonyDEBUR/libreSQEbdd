@@ -464,6 +464,12 @@ CREATE OR REPLACE TRIGGER trg_date_tr_rdd_rdd
      AFTER INSERT OR UPDATE ON refer.tr_rdd_rdd
      FOR EACH ROW
      EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_rdd_rdd");    
+
+DROP TRIGGER IF EXISTS trg_date_tr_stationmesure_stm ON refer.tr_stationmesure_stm;
+CREATE OR REPLACE TRIGGER trg_date_tr_stationmesure_stm
+     AFTER INSERT OR UPDATE ON refer.tr_stationmesure_stm
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_stationmesure_stm");        
     
 /*   
 INSERT INTO refer.tr_fraction_fra(fra_codefraction, fra_nomfraction)
