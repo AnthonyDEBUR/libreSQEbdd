@@ -358,7 +358,8 @@ CREATE TRIGGER update_prr  AFTER INSERT OR UPDATE ON
 
 CREATE TABLE sqe.ts_suivi_maj(
 ts_table TEXT, -- nom de la table
-ts_date DATE -- Date de mise à jour de la base
+ts_date DATE, -- Date de mise à jour de la base
+ts_nom_referentiel TEXT -- Nom du référentiel SANDRE concerné
 );  
 
 
@@ -367,32 +368,32 @@ CREATE TABLE sqe.ts_suivi_maj_sqe() INHERITS(sqe.ts_suivi_maj);
 CREATE TABLE sqe.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj); 
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_fraction_fra', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_fraction_fra', '1950-01-01', 'fractions');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_intervenantsandre_isa', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_intervenantsandre_isa', '1950-01-01', 'intervenants');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_methode_met', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_methode_met', '1950-01-01', 'méthodes');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_parametre_par', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_parametre_par', '1950-01-01', 'paramètres');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_uniteparametre_uni', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_uniteparametre_uni', '1950-01-01','unités');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_rdd_rdd', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_rdd_rdd', '1950-01-01','dispositifs de collecte');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_stationmesure_stm', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_stationmesure_stm', '1950-01-01', 'stations de mesures');
 
 -- trigger for refer ts_suivi_maj_refer()
 /* permet d'acualiser la date de dernière mise à jour d'une table du schéma réfer
