@@ -60,8 +60,14 @@ INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
 VALUES  ('UGVE', 'Unité gestion Vilaine Est');
 INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
 VALUES  ('UGVO', 'Unité gestion Vilaine Ouest');
-
-
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVE_PONT_BILLON', 'Unité gestion Vilaine Est - suivi spécifique captage de Pont-Billon');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVE_VALIERE', 'Unité gestion Vilaine Est - suivi spécifique captage de la Valière');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVO - IIF', 'Unité gestion Vilaine Ouest - suivi spécifique bassin Ille-Illet et Flume');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
+VALUES  ('UGVO - VHBC', 'Unité gestion Vilaine Est - suivi spécifique territoire de Vallons de Haute-Bretagne Communauté');
 
 
 
@@ -208,7 +214,8 @@ fra_nomfraction TEXT
 
 CREATE TABLE refer.tr_methode_met(
 met_code TEXT PRIMARY KEY,
-met_nom TEXT
+met_nom TEXT,
+met_statut TEXT
 );
 
 /*
@@ -351,7 +358,8 @@ CREATE TRIGGER update_prr  AFTER INSERT OR UPDATE ON
 
 CREATE TABLE sqe.ts_suivi_maj(
 ts_table TEXT, -- nom de la table
-ts_date DATE -- Date de mise à jour de la base
+ts_date DATE, -- Date de mise à jour de la base
+ts_nom_referentiel TEXT -- Nom du référentiel SANDRE concerné
 );  
 
 
@@ -360,25 +368,32 @@ CREATE TABLE sqe.ts_suivi_maj_sqe() INHERITS(sqe.ts_suivi_maj);
 CREATE TABLE sqe.ts_suivi_maj_refer() INHERITS(sqe.ts_suivi_maj); 
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_fraction_fra', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_fraction_fra', '1950-01-01', 'fractions');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_intervenantsandre_isa', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_intervenantsandre_isa', '1950-01-01', 'intervenants');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_methode_met', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_methode_met', '1950-01-01', 'méthodes');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_parametre_par', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_parametre_par', '1950-01-01', 'paramètres');
 
 INSERT INTO sqe.ts_suivi_maj_refer
-(ts_table, ts_date)
-VALUES('tr_uniteparametre_uni', '1950-01-01');
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_uniteparametre_uni', '1950-01-01','unités');
 
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_rdd_rdd', '1950-01-01','dispositifs de collecte');
+
+INSERT INTO sqe.ts_suivi_maj_refer
+(ts_table, ts_date, ts_nom_referentiel)
+VALUES('tr_stationmesure_stm', '1950-01-01', 'stations de mesures');
 
 -- trigger for refer ts_suivi_maj_refer()
 /* permet d'acualiser la date de dernière mise à jour d'une table du schéma réfer
@@ -389,7 +404,7 @@ $$
 DECLARE
         sql TEXT;
 BEGIN
-  sql := format('UPDATE sqe.ts_suivi_maj_refer SET (ts_table, ts_date) =(''%s'', now()::date)', TG_ARGV[0]);
+  sql := format('UPDATE sqe.ts_suivi_maj_refer SET ts_date =now()::date WHERE ts_table = ''%s''', TG_ARGV[0]);
     EXECUTE sql USING NEW;
     RETURN new;
 END;
@@ -445,7 +460,17 @@ CREATE OR REPLACE TRIGGER trg_date_tr_uniteparametre_uni
      FOR EACH ROW
      EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_uniteparametre_uni");
     
-    
+DROP TRIGGER IF EXISTS trg_date_tr_rdd_rdd ON refer.tr_rdd_rdd;
+CREATE OR REPLACE TRIGGER trg_date_tr_rdd_rdd
+     AFTER INSERT OR UPDATE ON refer.tr_rdd_rdd
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_rdd_rdd");    
+
+DROP TRIGGER IF EXISTS trg_date_tr_stationmesure_stm ON refer.tr_stationmesure_stm;
+CREATE OR REPLACE TRIGGER trg_date_tr_stationmesure_stm
+     AFTER INSERT OR UPDATE ON refer.tr_stationmesure_stm
+     FOR EACH ROW
+     EXECUTE PROCEDURE sqe.fn_update_date_refer("tr_stationmesure_stm");        
     
 /*   
 INSERT INTO refer.tr_fraction_fra(fra_codefraction, fra_nomfraction)
@@ -456,10 +481,9 @@ VALUES('titi5', 'toto5');
 
 
 
-
-
 CREATE TABLE sqe.t_realisationcommande_rec(
 rec_id serial PRIMARY KEY,
+rec_prs_id INTEGER,
 rec_bco_id INTEGER, -- identifiant du bon de commande est-ce utile la prestation est liée à un bon de commande (auquel cas il faut mettre non nul)?
 rec_dateprevi DATE,
 rec_daterealisation DATE,
@@ -487,17 +511,60 @@ CREATE TABLE refer.tr_statutanalyse_san(
 san_cdstatutana INTEGER PRIMARY KEY,
 san_mnemostatutana TEXT NOT NULL);
 
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('1', 'Donnée brute');
+
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('2', 'Niveau 1');
+
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('3', 'Niveau 2');
+
+INSERT INTO refer.tr_statutanalyse_san(san_cdstatutana, san_mnemostatutana)
+VALUES  ('4', 'Donnée interprétée');
+
+/*
+
+ Code	!  Mnémonique               !  Libellé
+----------------------------------------------------------------------
+    1	!  Donnée brute             !  Donnée brute
+    2	!  Niveau 1                 !  Donnée contrôlée niveau 1 (données contrôlées)
+    3	!  Niveau 2                 !  Donnée contrôlée niveau 2 (données validées)
+    4	!  Donnée interprétée       !  Donnée interprétée
+    
+  */
+      
 CREATE TABLE refer.tr_rdd_rdd(
 rdd_cdrdd TEXT PRIMARY KEY,
-rdd_nomrdd TEXT NOT NULL);
+rdd_nomrdd TEXT NOT NULL,
+rdd_statut TEXT);
 COMMENT ON TABLE refer.tr_rdd_rdd IS 'Réseau de mesure - dispositif de collecte';
 
 CREATE TABLE refer.tr_qualificationana_qal(
 qal_code INTEGER PRIMARY KEY,
 qal_mnemo TEXT,
-qal_libelle TEXT,
-qal_definition TEXT);
+qal_libelle TEXT);
 COMMENT ON TABLE refer.tr_rdd_rdd IS 'Code des qualifications d''analyse';
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(0, 'non définissable', 'Qualification non définissable');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(1, 'Correcte', 'Correcte');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(2, 'Incorrecte', 'Incorrecte');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(3, 'Incertaine', 'Incertaine');
+
+INSERT INTO refer.tr_qualificationana_qal
+(qal_code, qal_mnemo, qal_libelle)
+VALUES(4, 'Non qualifié', 'Non qualifié');
 
 
 CREATE TABLE sqe.depotfichier_dfi(
