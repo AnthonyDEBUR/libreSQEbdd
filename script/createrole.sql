@@ -28,4 +28,5 @@ REASSIGN OWNED BY cbriand, adebur TO grp_eptbv_planif_dba
 GRANT grp_eptbv_planif_dba TO cbriand;
 GRANT grp_eptbv_planif_dba TO adebur;
 
+GRANT ALL ON SCHEMA refer TO grp_eptbv_planif_dba;
   

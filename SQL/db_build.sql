@@ -26,6 +26,9 @@ isa_codepostal INTEGER
 
 ALTER TABLE refer.tr_intervenantsandre_isa OWNER TO grp_eptbv_planif_dba;
 
+-- indexation des noms d'intervenants
+CREATE INDEX tr_intervenantsandre_isa_nom_key ON refer.tr_intervenantsandre_isa USING btree (isa_nom);
+
 
 -- test
 
@@ -94,8 +97,8 @@ SELECT * FROM TEST
 DROP TABLE IF EXISTS sqe.t_marche_mar CASCADE;
 CREATE TABLE sqe.t_marche_mar(
 mar_id serial PRIMARY KEY,
-mar_pre_id INTEGER, -- Titulaire du marché.
--- mar_per_nom TEXT, 
+mar_pre_id TEXT, -- Titulaire du marché.
+mar_reference TEXT, -- référence du marché
 mar_montantmin NUMERIC,
 mar_montantmax NUMERIC,
 mar_datedebut DATE, -- date début validité marché (date premier prélèvement)
@@ -125,6 +128,9 @@ COMMENT ON TABLE sqe.t_marche_mar IS 'Table des marchés';
 COMMENT ON COLUMN sqe.t_marche_mar.mar_pre_id IS 'Identifiant du prestataire titulaire du marché';
 COMMENT ON COLUMN sqe.t_marche_mar.mar_datedebut IS 'Date début de marché (i.e. date à partir de laquelle on peut prélever)';
 COMMENT ON COLUMN sqe.t_marche_mar.mar_datefin IS 'Date fin de marché (i.e. date jusqu à laquelle on peut prélever)';
+COMMENT ON COLUMN sqe.t_marche_mar.mar_reference IS 'Référence du marché';
+COMMENT ON COLUMN sqe.t_marche_mar.mar_statut IS 'Statut du marché (En cours ou Terminé)';
+
 ALTER TABLE sqe.t_marche_mar OWNER TO grp_eptbv_planif_dba;
 
 ----------------------------------------
@@ -140,6 +146,7 @@ CONSTRAINT c_fk_map_per_nom FOREIGN KEY (map_per_nom) REFERENCES refer.tr_perime
 );
 
 
+ALTER TABLE sqe.tj_marche_perimetre_map OWNER TO grp_eptbv_planif_dba;
 
 
 
@@ -171,7 +178,7 @@ COMMENT ON COLUMN sqe.t_prestation_prs.prs_pre_id IS 'Identifiant du prestataire
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_mar_id IS 'Identifiant marché';
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_id IS 'Identifiant de la prestation';
 
-
+ALTER TABLE sqe.t_prestation_prs OWNER TO grp_eptbv_planif_dba;
 
   
 CREATE TABLE refer.tr_statutpresta_stp(
@@ -220,6 +227,8 @@ par_statutparametre TEXT,
 par_nomcourt TEXT,
 par_codecas TEXT
 );
+-- indexation des noms de paramtres
+CREATE INDEX tr_parametre_par_nom_key ON refer.tr_parametre_par USING btree (par_nomparametre);
 
 
 
@@ -521,13 +530,18 @@ CREATE TABLE  sqe.t_realisationcommandeautre_rea() INHERITS (sqe.t_realisationco
 CREATE TABLE refer.tr_stationmesure_stm(
   stm_cdstationmesureauxsurface TEXT, 
   stm_cdstationmesureinterne TEXT,
+  stm_memoirecodeprovisoire TEXT,
   stm_lbstationmesureeauxsurface TEXT,
   stm_x NUMERIC,
   stm_y NUMERIC,
   stm_commentaires TEXT,
   geom geometry,
-  CONSTRAINT c_uk_stm_cdstationmesureauxsurface UNIQUE(stm_cdstationmesureauxsurface) );
+  CONSTRAINT c_uk_stm_cdstationmesureinterne PRIMARY KEY (stm_cdstationmesureinterne)
+ );
 
+ -- indexation des noms de stations et des codes internes
+CREATE INDEX tr_stationmesure_stm_nom_key ON refer.tr_stationmesure_stm USING btree (stm_lbstationmesureeauxsurface);
+ 
 
 CREATE TABLE refer.tr_statutanalyse_san(
 san_cdstatutana INTEGER PRIMARY KEY,
@@ -561,6 +575,10 @@ rdd_cdrdd TEXT PRIMARY KEY,
 rdd_nomrdd TEXT NOT NULL,
 rdd_statut TEXT);
 COMMENT ON TABLE refer.tr_rdd_rdd IS 'Réseau de mesure - dispositif de collecte';
+
+-- indexation des noms de réseaux
+CREATE INDEX tr_rdd_rdd_nom_key ON refer.tr_rdd_rdd USING btree (rdd_nomrdd);
+
 
 CREATE TABLE refer.tr_qualificationana_qal(
 qal_code INTEGER PRIMARY KEY,
