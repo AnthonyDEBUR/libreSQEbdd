@@ -1,174 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <diagram version="1" name="sqe.erd">
 	<entities>
-		<data-source id="postgres-jdbc-1841e7dfd15-4d76059b8b1c4545">
-			<entity id="1" name="t_marche_mar" fq-name="sqe.t_marche_mar" order="0" color-bg="0,255,0" x="1652" y="189">
+		<data-source id="postgres-jdbc-1849e670a45-6d6d866bec999c92">
+			<entity id="1" name="tj_marche_perimetre_map" fq-name="sqe.tj_marche_perimetre_map" order="0" x="604" y="470">
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="2" name="t_parametreprogrammetype_ppt" fq-name="sqe.t_parametreprogrammetype_ppt" order="1" color-bg="64,128,128" x="734" y="74">
+			<entity id="2" name="t_marche_mar" fq-name="sqe.t_marche_mar" order="1" x="334" y="350">
 				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
-			<entity id="3" name="t_prestation_prs" fq-name="sqe.t_prestation_prs" order="2" color-bg="128,128,255" x="1232" y="432">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="4" name="t_prixunitaire_pru" fq-name="sqe.t_prixunitaire_pru" order="3" color-bg="128,128,255" x="1290" y="640">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="5" name="t_prixunitaireprestation_prp" fq-name="sqe.t_prixunitaireprestation_prp" order="4" color-bg="128,128,255" x="990" y="580">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="6" name="t_prixunitairerunanalytique_prr" fq-name="sqe.t_prixunitairerunanalytique_prr" order="5" color-bg="0,64,0" x="602" y="486">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="7" name="t_runanalytique_run" fq-name="sqe.t_runanalytique_run" order="6" color-bg="0,64,0" x="923" y="458">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="8" name="tr_fraction_fra" fq-name="refer.tr_fraction_fra" order="7" color-bg="255,128,64" x="144" y="82">
+			<entity id="3" name="tr_perimetre_per" fq-name="refer.tr_perimetre_per" order="2" color-bg="204,192,184" x="600" y="674">
 				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="9" name="tr_intervenantsandre_isa" fq-name="refer.tr_intervenantsandre_isa" order="8" color-bg="255,128,0" x="161" y="837">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="10" name="tr_parametre_par" fq-name="refer.tr_parametre_par" order="9" color-bg="255,128,64" x="132" y="174">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="11" name="tr_perimetre_per" fq-name="refer.tr_perimetre_per" order="10" color-bg="255,128,64" x="210" y="1207">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="12" name="tr_prestataire_pre" fq-name="refer.tr_prestataire_pre" order="14" color-bg="255,128,64" x="139" y="485">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="13" name="tr_statutpresta_stp" fq-name="refer.tr_statutpresta_stp" order="11" color-bg="255,128,64" x="200" y="1337">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="14" name="tr_uniteparametre_uni" fq-name="refer.tr_uniteparametre_uni" order="12" color-bg="255,128,0" x="148" y="721">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="15" name="t_boncommande_bco" fq-name="sqe.t_boncommande_bco" order="13" color-bg="0,128,192" x="1809" y="551">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="16" name="tr_methode_met" fq-name="refer.tr_methode_met" order="15" color-bg="255,128,64" x="130" y="343">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="17" name="tr_qualificationana_qal" fq-name="refer.tr_qualificationana_qal" order="16" color-bg="245,185,103" x="182" y="1540">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="18" name="tr_rdd_rdd" fq-name="refer.tr_rdd_rdd" order="17" color-bg="245,185,103" x="203" y="1424">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="19" name="tr_stationmesure_stm" fq-name="refer.tr_stationmesure_stm" order="18" color-bg="245,185,103" x="1255" y="1634">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="20" name="tr_statutanalyse_san" fq-name="refer.tr_statutanalyse_san" order="19" color-bg="245,185,103" x="209" y="1682">
-				<path name="refer"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="21" name="depotfichier_dfi" fq-name="sqe.depotfichier_dfi" order="20" color-bg="255,0,255" x="504" y="856">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="22" name="t_realisationcommande_rec" fq-name="sqe.t_realisationcommande_rec" order="21" color-bg="0,128,255" x="1762" y="791">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="23" name="t_realisationcommandeautre_rea" fq-name="sqe.t_realisationcommandeautre_rea" order="22" color-bg="0,128,255" x="2008" y="950">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="24" name="t_realisationcommandeprel_rep" fq-name="sqe.t_realisationcommandeprel_rep" order="23" color-bg="0,128,255" x="1733" y="953">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="25" name="t_resultat_res" fq-name="sqe.t_resultat_res" order="24" color-bg="255,0,128" x="988" y="856">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="26" name="t_resultatanalyse_rea" fq-name="sqe.t_resultatanalyse_rea" order="25" color-bg="255,0,128" x="852" y="1143">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="27" name="t_resultatcondenvir_rec" fq-name="sqe.t_resultatcondenvir_rec" order="26" color-bg="255,0,128" x="1125" y="995">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="28" name="t_resultatcondreceptechantillon_ree" fq-name="sqe.t_resultatcondreceptechantillon_ree" order="27" color-bg="255,0,128" x="1675" y="1260">
-				<path name="sqe"/>
-				<path name="libresqe"/>
-			</entity>
-			<entity id="29" name="t_resultatoperation_reo" fq-name="sqe.t_resultatoperation_reo" order="28" color-bg="255,0,128" x="1343" y="1184">
-				<path name="sqe"/>
 				<path name="libresqe"/>
 			</entity>
 		</data-source>
 	</entities>
 	<relations>
-		<relation name="c_fk_ppt_mar_id" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_mar_id" type="fk" pk-ref="1" fk-ref="2"/>
-		<relation name="c_fk_prs_mar_id" fq-name="sqe.t_prestation_prs.c_fk_prs_mar_id" type="fk" pk-ref="1" fk-ref="3"/>
-		<relation name="c_fk_prr_mar_id" fq-name="sqe.t_prixunitairerunanalytique_prr.c_fk_prr_mar_id" type="fk" pk-ref="1" fk-ref="6"/>
-		<relation name="c_fk_ppt_prs_id" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_prs_id" type="fk" pk-ref="3" fk-ref="2"/>
-		<relation name="c_fk_prp_prs_id" fq-name="sqe.t_prixunitaireprestation_prp.c_fk_prp_prs_id" type="fk" pk-ref="3" fk-ref="5"/>
-		<relation name="c_fk_bco_prs_id" fq-name="sqe.t_boncommande_bco.c_fk_bco_prs_id" type="fk" pk-ref="3" fk-ref="15"/>
-		<relation name="c_fk_rec_prs_id" fq-name="sqe.t_realisationcommande_rec.c_fk_rec_prs_id" type="fk" pk-ref="3" fk-ref="22"/>
-		<relation name="sqe.t_prixunitaireprestation_prp-&gt;sqe.t_prixunitaire_pru" fq-name="sqe.t_prixunitaireprestation_prp.&quot;sqe.t_prixunitaireprestation_prp-&gt;sqe.t_prixunitaire_pru&quot;" type="inheritance" pk-ref="4" fk-ref="5"/>
-		<relation name="sqe.t_prixunitairerunanalytique_prr-&gt;sqe.t_prixunitaire_pru" fq-name="sqe.t_prixunitairerunanalytique_prr.&quot;sqe.t_prixunitairerunanalytique_prr-&gt;sqe.t_prixunitaire_pru&quot;" type="inheritance" pk-ref="4" fk-ref="6"/>
-		<relation name="c_fk_ppt_run_id" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_run_id" type="fk" pk-ref="7" fk-ref="2"/>
-		<relation name="c_fk_prr_run_id" fq-name="sqe.t_prixunitairerunanalytique_prr.c_fk_prr_run_id" type="fk" pk-ref="7" fk-ref="6"/>
-		<relation name="c_fk_ppt_fra_codefraction" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_fra_codefraction" type="fk" pk-ref="8" fk-ref="2"/>
-		<relation name="c_fk_pre_codesandre" fq-name="refer.tr_prestataire_pre.c_fk_pre_codesandre" type="fk" pk-ref="9" fk-ref="12"/>
-		<relation name="c_fk_dfi_deposant" fq-name="sqe.depotfichier_dfi.c_fk_dfi_deposant" type="fk" pk-ref="9" fk-ref="21"/>
-		<relation name="c_fk_rea_cdlaboratoire" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_cdlaboratoire" type="fk" pk-ref="9" fk-ref="26"/>
-		<relation name="c_fk_rea_cdpreleveur" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_cdpreleveur" type="fk" pk-ref="9" fk-ref="26"/>
-		<relation name="c_fk_rea_cdproducteur" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_cdproducteur" type="fk" pk-ref="9" fk-ref="26"/>
-		<relation name="c_fk_rec_cdpreleveur" fq-name="sqe.t_resultatcondenvir_rec.c_fk_rec_cdpreleveur" type="fk" pk-ref="9" fk-ref="27"/>
-		<relation name="c_fk_rec_cdproducteur" fq-name="sqe.t_resultatcondenvir_rec.c_fk_rec_cdproducteur" type="fk" pk-ref="9" fk-ref="27"/>
-		<relation name="c_fk_ppt_par_cdparametre" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_par_cdparametre" type="fk" pk-ref="10" fk-ref="2"/>
-		<relation name="c_fk_rea_par_cdparametre" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_par_cdparametre" type="fk" pk-ref="10" fk-ref="26"/>
-		<relation name="c_fk_rec_par_cdparametre" fq-name="sqe.t_resultatcondenvir_rec.c_fk_rec_par_cdparametre" type="fk" pk-ref="10" fk-ref="27"/>
-		<relation name="c_fk_mar_per_nom" fq-name="sqe.t_marche_mar.c_fk_mar_per_nom" type="fk" pk-ref="11" fk-ref="1"/>
-		<relation name="c_fk_per_nom" fq-name="sqe.t_boncommande_bco.c_fk_per_nom" type="fk" pk-ref="11" fk-ref="15"/>
-		<relation name="c_fk_mar_pre_id" fq-name="sqe.t_marche_mar.c_fk_mar_pre_id" type="fk" pk-ref="12" fk-ref="1"/>
-		<relation name="c_fk_prs_pre_id" fq-name="sqe.t_prestation_prs.c_fk_prs_pre_id" type="fk" pk-ref="12" fk-ref="3"/>
-		<relation name="c_fk_bco_stp_nom" fq-name="sqe.t_boncommande_bco.c_fk_bco_stp_nom" type="fk" pk-ref="13" fk-ref="15"/>
-		<relation name="c_fk_ppt_uni_codesandreunite" fq-name="sqe.t_parametreprogrammetype_ppt.c_fk_ppt_uni_codesandreunite" type="fk" pk-ref="14" fk-ref="2"/>
-		<relation name="c_fk_dfi_bco_id" fq-name="sqe.depotfichier_dfi.c_fk_dfi_bco_id" type="fk" pk-ref="15" fk-ref="21"/>
-		<relation name="c_fk_run_met_code" fq-name="sqe.t_runanalytique_run.c_fk_run_met_code" type="fk" pk-ref="16" fk-ref="7"/>
-		<relation name="c_fk_rec_met_code" fq-name="sqe.t_resultatcondenvir_rec.c_fk_rec_met_code" type="fk" pk-ref="16" fk-ref="27"/>
-		<relation name="c_fk_reo_met_code" fq-name="sqe.t_resultatoperation_reo.c_fk_reo_met_code" type="fk" pk-ref="16" fk-ref="29"/>
-		<relation name="c_fk_rea_qal_cdqualana" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_qal_cdqualana" type="fk" pk-ref="17" fk-ref="26"/>
-		<relation name="c_fk_rec_qal_cdqualana" fq-name="sqe.t_resultatcondenvir_rec.c_fk_rec_qal_cdqualana" type="fk" pk-ref="17" fk-ref="27"/>
-		<relation name="c_fk_rea_rdd_cdrdd" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_rdd_cdrdd" type="fk" pk-ref="18" fk-ref="26"/>
-		<relation name="c_fk_reo_rdd_cdrdd" fq-name="sqe.t_resultatoperation_reo.c_fk_reo_rdd_cdrdd" type="fk" pk-ref="18" fk-ref="29"/>
-		<relation name="c_fk_res_stm_cdstationmesureauxsurface" fq-name="sqe.t_resultat_res.c_fk_res_stm_cdstationmesureauxsurface" type="fk" pk-ref="19" fk-ref="25"/>
-		<relation name="c_fk_res_stm_cdstationmesureauxsurface" fq-name="sqe.t_resultatanalyse_rea.c_fk_res_stm_cdstationmesureauxsurface" type="fk" pk-ref="19" fk-ref="26"/>
-		<relation name="c_fk_res_stm_cdstationmesureauxsurface" fq-name="sqe.t_resultatcondenvir_rec.c_fk_res_stm_cdstationmesureauxsurface" type="fk" pk-ref="19" fk-ref="27"/>
-		<relation name="c_fk_res_stm_cdstationmesureauxsurface" fq-name="sqe.t_resultatcondreceptechantillon_ree.c_fk_res_stm_cdstationmesureauxsurface" type="fk" pk-ref="19" fk-ref="28"/>
-		<relation name="c_fk_res_stm_cdstationmesureauxsurface" fq-name="sqe.t_resultatoperation_reo.c_fk_res_stm_cdstationmesureauxsurface" type="fk" pk-ref="19" fk-ref="29"/>
-		<relation name="c_fk_rea_san_cdstatutana" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_san_cdstatutana" type="fk" pk-ref="20" fk-ref="26"/>
-		<relation name="c_fk_rea_dfi_iddepot" fq-name="sqe.t_resultatanalyse_rea.c_fk_rea_dfi_iddepot" type="fk" pk-ref="21" fk-ref="26"/>
-		<relation name="sqe.t_realisationcommandeautre_rea-&gt;sqe.t_realisationcommande_rec" fq-name="sqe.t_realisationcommandeautre_rea.&quot;sqe.t_realisationcommandeautre_rea-&gt;sqe.t_realisationcommande_rec&quot;" type="inheritance" pk-ref="22" fk-ref="23"/>
-		<relation name="sqe.t_realisationcommandeprel_rep-&gt;sqe.t_realisationcommande_rec" fq-name="sqe.t_realisationcommandeprel_rep.&quot;sqe.t_realisationcommandeprel_rep-&gt;sqe.t_realisationcommande_rec&quot;" type="inheritance" pk-ref="22" fk-ref="24"/>
-		<relation name="sqe.t_resultatanalyse_rea-&gt;sqe.t_resultat_res" fq-name="sqe.t_resultatanalyse_rea.&quot;sqe.t_resultatanalyse_rea-&gt;sqe.t_resultat_res&quot;" type="inheritance" pk-ref="25" fk-ref="26"/>
-		<relation name="sqe.t_resultatcondenvir_rec-&gt;sqe.t_resultat_res" fq-name="sqe.t_resultatcondenvir_rec.&quot;sqe.t_resultatcondenvir_rec-&gt;sqe.t_resultat_res&quot;" type="inheritance" pk-ref="25" fk-ref="27"/>
-		<relation name="sqe.t_resultatcondreceptechantillon_ree-&gt;sqe.t_resultat_res" fq-name="sqe.t_resultatcondreceptechantillon_ree.&quot;sqe.t_resultatcondreceptechantillon_ree-&gt;sqe.t_resultat_res&quot;" type="inheritance" pk-ref="25" fk-ref="28"/>
-		<relation name="sqe.t_resultatoperation_reo-&gt;sqe.t_resultat_res" fq-name="sqe.t_resultatoperation_reo.&quot;sqe.t_resultatoperation_reo-&gt;sqe.t_resultat_res&quot;" type="inheritance" pk-ref="25" fk-ref="29"/>
+		<relation name="c_fk_map_mar_id" fq-name="sqe.tj_marche_perimetre_map.c_fk_map_mar_id" type="fk" pk-ref="2" fk-ref="1"/>
+		<relation name="c_fk_map_per_nom" fq-name="sqe.tj_marche_perimetre_map.c_fk_map_per_nom" type="fk" pk-ref="3" fk-ref="1"/>
 	</relations>
 </diagram>
