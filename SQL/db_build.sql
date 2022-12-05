@@ -749,3 +749,52 @@ refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT,
  CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
 refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT-- il faut redéfinir les contraintes dans la TABLE héritée
  ) INHERITS (sqe.t_resultat_res);
+ 
+ 
+ 
+ CREATE OR REPLACE VIEW sqe.test_vue AS 
+ SELECT res_stm_cdstationmesureauxsurface, 
+ res_codeprel, 
+ res_dateprel, 
+  stm.stm_lbstationmesureeauxsurface,
+ rea_cdsupport, 
+ rea_cdfractionanalysee, 
+ rea_heureprel, 
+ rea_dateana, 
+ rea_heureana, 
+ rea_par_cdparametre,
+ rea_rsana, 
+ rea_cdunitemesure, 
+ rea_cdrqana, 
+ rea_cdinsituana, 
+ rea_profondeurpre, 
+ rea_cddifficulteana,
+ rea_ldana, 
+ rea_lqana, 
+ rea_lsana, 
+ rea_cdmetfractionnement,
+ rea_cdmethode, 
+ rea_rdtextration, 
+ rea_cdmethodeextraction, 
+ rea_cdaccreana, 
+ rea_agreana, 
+ rea_san_cdstatutana, 
+ rea_qal_cdqualana, 
+ rea_commentairesana,
+ rea_comresultatana, 
+ rea_rdd_cdrdd, 
+ rea_cdproducteur, 
+ rea_cdpreleveur, 
+ rea_cdlaboratoire,
+ rea_dfi_iddepot, 
+ rea_datemodif
+ FROM sqe.t_resultatanalyse_rea rea
+ JOIN refer.tr_stationmesure_stm stm ON stm.stm_cdstationmesureauxsurface= rea.res_stm_cdstationmesureauxsurface
+
+ 
+ 
+ SELECT * FROM sqe.test_vue
+ 
+  CREATE OR REPLACE MATERIALIZED VIEW sqe.test_vue AS 
+ 
+ REFRESH MATERIALIZED VIEW 
