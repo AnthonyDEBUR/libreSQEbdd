@@ -95,14 +95,14 @@ DROP TABLE IF EXISTS sqe.t_marche_mar CASCADE;
 CREATE TABLE sqe.t_marche_mar(
 mar_id serial PRIMARY KEY,
 mar_pre_id INTEGER, -- Titulaire du marché.
-mar_per_nom TEXT,
+-- mar_per_nom TEXT, 
 mar_montantmin NUMERIC,
 mar_montantmax NUMERIC,
-mar_datedebut DATE,
-mar_datefin DATE,
+mar_datedebut DATE, -- date début validité marché (date premier prélèvement)
+mar_datefin DATE,-- date fin validité marché (date premier prélèvement)
 mar_statut TEXT,
 CONSTRAINT c_fk_mar_pre_id FOREIGN KEY (mar_pre_id) REFERENCES refer.tr_prestataire_pre(pre_id) ON UPDATE CASCADE ON DELETE RESTRICT,
-CONSTRAINT c_fk_mar_per_nom FOREIGN KEY (mar_per_nom) REFERENCES refer.tr_perimetre_per (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT,
+-- CONSTRAINT c_fk_mar_per_nom FOREIGN KEY (mar_per_nom) REFERENCES refer.tr_perimetre_per (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_ck_mar_statut CHECK (mar_statut='En cours' OR mar_statut='Terminé'),
 CONSTRAINT c_ck_mar_datefin CHECK (mar_datefin > mar_datedebut)
 );
@@ -114,13 +114,35 @@ CONSTRAINT c_ck_mar_datefin CHECK (mar_datefin > mar_datedebut)
 ALTER TABLE DROP CONSTRAINT c_ck_mar_statut ;
 ALTER TABLE ADD CONSTRAINT c_ck_mar_statut ....
 
+ALTER TABLE  sqe.t_marche_mar DROP CONSTRAINT c_fk_mar_per_nom;
+
+
+
 */
 
 
-
 COMMENT ON TABLE sqe.t_marche_mar IS 'Table des marchés';
-COMMENT ON COLUMN sqe.t_marche_mar.mar_pre_id IS 'Identifiant du prestataire';
+COMMENT ON COLUMN sqe.t_marche_mar.mar_pre_id IS 'Identifiant du prestataire titulaire du marché';
+COMMENT ON COLUMN sqe.t_marche_mar.mar_datedebut IS 'Date début de marché (i.e. date à partir de laquelle on peut prélever)';
+COMMENT ON COLUMN sqe.t_marche_mar.mar_datefin IS 'Date fin de marché (i.e. date jusqu à laquelle on peut prélever)';
 ALTER TABLE sqe.t_marche_mar OWNER TO grp_eptbv_planif_dba;
+
+----------------------------------------
+-- creation de la table de jointure marché / périmètres de gestion 
+----------------------------------------
+
+DROP TABLE IF EXISTS sqe.tj_marche_perimetre_map CASCADE;
+CREATE TABLE sqe.tj_marche_perimetre_map(
+map_mar_id INTEGER, -- Identifiant du marché
+map_per_nom TEXT, -- Périmètre de gestion 
+CONSTRAINT c_fk_map_mar_id FOREIGN KEY (map_mar_id) REFERENCES sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_map_per_nom FOREIGN KEY (map_per_nom) REFERENCES refer.tr_perimetre_per (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+
+
+
+
+
 
 ----------------------------------------
 -- creation des tables relatives aux prestations 
