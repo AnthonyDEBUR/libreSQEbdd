@@ -159,15 +159,12 @@ ALTER TABLE sqe.tj_marche_perimetre_map OWNER TO grp_eptbv_planif_dba;
 
 
 
-
-
-
 ----------------------------------------
 -- creation des tables relatives aux prestations du marché
 ----------------------------------------
 
 CREATE TABLE sqe.t_prestation_prs(
-prs_id INTEGER PRIMARY KEY, -- identifiant de la prestation
+prs_id serial PRIMARY KEY, -- identifiant de la prestation
 prs_mar_id INTEGER, -- identifiant du marché
 prs_pre_id INTEGER, -- identifiant du prestataire
 prs_label_prestation TEXT, -- label (nom court) de la prestation
