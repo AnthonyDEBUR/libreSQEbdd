@@ -30,3 +30,4 @@ GRANT grp_eptbv_planif_dba TO adebur;
 
 GRANT ALL ON SCHEMA refer TO grp_eptbv_planif_dba;
   
+GRANT ALL ON SCHEMA sqe TO grp_eptbv_planif_dba;

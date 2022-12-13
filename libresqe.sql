@@ -1139,6 +1139,18 @@ ALTER TABLE ONLY public."T_utilisateurs"
     ADD CONSTRAINT "T_utilisateurs_pkey" PRIMARY KEY (id_utilisateur);
 
 
+/* ==============================
+ *             VIEWS 
+ */   
+   
+CREATE OR REPLACE VIEW sqe.view_runanalytiques
+AS SELECT * 
+FROM sqe.t_prixunitairerunanalytique_prr 
+INNER JOIN sqe.t_runanalytique_run 
+ON prr_run_id = run_id;
+   
+   
+   
 -- Completed on 2022-10-28 10:55:57
 
 --

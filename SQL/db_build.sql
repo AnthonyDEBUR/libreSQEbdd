@@ -99,6 +99,7 @@ CREATE TABLE sqe.t_marche_mar(
 mar_id serial PRIMARY KEY,
 mar_pre_id TEXT, -- Titulaire du marché.
 mar_reference TEXT, -- référence du marché
+mar_nom TEXT UNIQUE, -- nom du marché
 mar_montantmin NUMERIC,
 mar_montantmax NUMERIC,
 mar_datedebut DATE, -- date début validité marché (date premier prélèvement)
@@ -130,6 +131,7 @@ COMMENT ON COLUMN sqe.t_marche_mar.mar_datedebut IS 'Date début de marché (i.e
 COMMENT ON COLUMN sqe.t_marche_mar.mar_datefin IS 'Date fin de marché (i.e. date jusqu à laquelle on peut prélever)';
 COMMENT ON COLUMN sqe.t_marche_mar.mar_reference IS 'Référence du marché';
 COMMENT ON COLUMN sqe.t_marche_mar.mar_statut IS 'Statut du marché (En cours ou Terminé)';
+COMMENT ON COLUMN sqe.t_marche_mar.mar_nom IS 'Nom du marché (unique)';
 
 ALTER TABLE sqe.t_marche_mar OWNER TO grp_eptbv_planif_dba;
 
@@ -168,6 +170,7 @@ CREATE TABLE sqe.t_prestation_prs(
 prs_id INTEGER PRIMARY KEY, -- identifiant de la prestation
 prs_mar_id INTEGER, -- identifiant du marché
 prs_pre_id INTEGER, -- identifiant du prestataire
+prs_label_prestation TEXT, -- label (nom court) de la prestation
 prs_nomprestation TEXT,
 prs_natureprestation TEXT,
 prm_unitedoeuvre TEXT, -- A VOIR SI UTILE 
@@ -177,6 +180,7 @@ CONSTRAINT  c_fk_prs_pre_id FOREIGN KEY (prs_pre_id) REFERENCES refer.tr_prestat
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_pre_id IS 'Identifiant du prestataire, soit titulaire du marché soit sous traitant';
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_mar_id IS 'Identifiant marché';
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_id IS 'Identifiant de la prestation';
+COMMENT ON COLUMN sqe.t_prestation_prs.prs_label_prestation IS 'Label (nom court) de la prestation';
 
 ALTER TABLE sqe.t_prestation_prs OWNER TO grp_eptbv_planif_dba;
 
