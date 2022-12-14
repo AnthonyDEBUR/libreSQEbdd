@@ -280,6 +280,7 @@ ppt_fra_codefraction TEXT,
 ppt_nomparametre TEXT,
 ppt_uni_codesandreunite TEXT,
 ppt_analyseinsitu BOOLEAN,
+ppt_limitedetec NUMERIC, -- limite de détection garantie par le prestataire
 ppt_limitequantif NUMERIC, -- limite garantie par le prestataire
 ppt_incertitude NUMERIC,  -- incertitude garantie par le prestataire
 ppt_accreditation BOOLEAN, --Accreditation du prestataire 
@@ -302,7 +303,8 @@ AND ppt_codetemporaireparametre IS  NOT NULL) -- si le code sandre n'existe pas 
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_prs_id IS 'Identifiant de la prestation';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_par_cdparametre IS 'Code SANDRE du paramètre (clé étrangère)';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_codetemporaireparametre IS 'Code temporaire en attente de code SANDRE';
-COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_limitequantif IS 'Limite garantie par le prestataire';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_limitedetec IS 'Limite de détection garantie par le prestataire';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_limitequantif IS 'Limite de quantification garantie par le prestataire';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_incertitude IS 'Code temporaire en attente de code SANDRE';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_accreditation IS 'Accreditation du prestataire ';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_commentaireparametre IS 'Commentaire sur le paramètre du prestataire dans le marché en cours';
