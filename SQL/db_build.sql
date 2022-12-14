@@ -193,7 +193,7 @@ INSERT INTO refer.tr_statutpresta_stp VALUES ('Prélevé', 'Prélèvement fait')
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Analysé', 'Analyse rendue');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
 
--- DROP TABLE sqe.t_boncommande_bco 
+-- DROP TABLE sqe.t_boncommande_bco CASCADE;
 
 CREATE TABLE sqe.t_boncommande_bco(
 bco_id serial PRIMARY KEY,
