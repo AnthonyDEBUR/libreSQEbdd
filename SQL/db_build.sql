@@ -617,6 +617,67 @@ INSERT INTO refer.tr_qualificationana_qal
 (qal_code, qal_mnemo, qal_libelle)
 VALUES(4, 'Non qualifié', 'Non qualifié');
 
+CREATE TABLE sqe.t_calendrierprog_cal(
+cal_refannee TEXT, -- annee ou période de référence
+cal_mar_id INTEGER ,
+cal_typestation TEXT,
+cal_date DATE, -- date prévisionnelle d'intervention
+cal_prs_id INTEGER,-- id de la prestation (ie. nom du prog type)
+cal_preleveur INTEGER, -- id du préleveur
+cal_labo INTEGER, -- id du labo
+CONSTRAINT c_fk_cal_mar_id FOREIGN KEY (cal_mar_id) REFERENCES 
+ sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_cal_prs_id FOREIGN KEY (cal_prs_id) REFERENCES 
+ sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE RESTRICT
+);
+COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_refannee IS 'Annee ou période de référence';
+COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_mar_id IS 'Identifiant du marché';
+COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_typestation IS 'Typologie de la station';
+COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_date IS 'Date d intervention';
+COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_prs_id IS 'Id de la prestation';
+COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_preleveur IS 'Id du préleveur';
+COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_labo IS 'Id du labo';
+
+
+CREATE TABLE sqe.t_progannuelle_pga(
+pga_cal_refannee TEXT, -- référence année
+pga_mar_id INTEGER, -- id marché
+pga_per_nom TEXT, -- périmètre de gestion ou de facturation
+pga_cal_typestation TEXT, -- type de station conforme au calendrier
+pga_stm_cdstationmesureauxsurface TEXT,
+pga_stm_cdstationmesureinterne TEXT,
+/* CONSTRAINT c_fk_pga_cal_refannee CHECK (pga_cal_refannee) REFERENCES 
+ sqe.t_calendrierprog_cal (cal_refannee), Contrainte qui vérifie que 
+ pga_cal_refannee existe dans sqe.t_calendrierprog_cal (cal_refannee)*/
+
+/*CONSTRAINT c_fk_pga_cal_typestation FOREIGN KEY (pga_cal_typestation) REFERENCES 
+ sqe.t_calendrierprog_cal (cal_typestation) ON UPDATE CASCADE ON DELETE RESTRICT,*/
+
+CONSTRAINT c_fk_pga_mar_id FOREIGN KEY (pga_mar_id) REFERENCES 
+ sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_pga_per_nom FOREIGN KEY (pga_per_nom) REFERENCES 
+ refer.tr_perimetre_per  (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_ck_nn_uncoderenseignestation CHECK (pga_stm_cdstationmesureauxsurface IS NOT NULL  
+OR pga_stm_cdstationmesureinterne IS  NOT NULL) 
+); -- il faut soit un code sandre soit un code sandre temporaire
+
+COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_cal_refannee IS 'Annee ou période de référence';
+COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_mar_id IS 'Identifiant du marché';
+COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_cal_typestation IS 'Typologie de la station';
+COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_per_nom IS 'Périmètre de gestion (ou de facturation)';
+COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_stm_cdstationmesureauxsurface IS 'Code SANDRE de la station';
+COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_stm_cdstationmesureinterne IS 'Code provisoire de la station';
+
+
+/* Table sqe.t_progannuelle_pga
+ * A FAIRE : AJOUTER UN TRIGGER QUI VERIFIE QUE SI 
+ * sqe.t_progannuelle_pga.pga_stm_cdstationmesureauxsurface 
+ * ALORS IL EST DANS LA TABLE de référence stations.
+ * 
+ * IDEM pour le code station provisoire*/
+
+
+
 
 CREATE TABLE sqe.depotfichier_dfi(
 dfi_iddepot SERIAL PRIMARY KEY,
@@ -762,8 +823,26 @@ refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON D
  ) INHERITS (sqe.t_resultat_res);
  
  
- 
- CREATE OR REPLACE VIEW sqe.test_vue AS 
+/* ==============================
+ *             VIEWS 
+ */   
+   
+CREATE OR REPLACE VIEW sqe.view_runanalytiques
+AS SELECT * 
+FROM sqe.t_prixunitairerunanalytique_prr 
+INNER JOIN sqe.t_runanalytique_run 
+ON prr_run_id = run_id;
+   
+CREATE OR REPLACE VIEW sqe.view_bpu
+AS SELECT * 
+FROM sqe.t_prestation_prs 
+INNER JOIN sqe.t_prixunitaireprestation_prp 
+ON prs_id = prp_prs_id;   
+   
+
+
+/* 
+CREATE OR REPLACE VIEW sqe.test_vue AS 
  SELECT res_stm_cdstationmesureauxsurface, 
  res_codeprel, 
  res_dateprel, 
@@ -808,4 +887,5 @@ refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON D
  
   CREATE OR REPLACE MATERIALIZED VIEW sqe.test_vue AS 
  
- REFRESH MATERIALIZED VIEW 
+ REFRESH MATERIALIZED VIEW
+ */ 
