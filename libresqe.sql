@@ -1149,7 +1149,11 @@ FROM sqe.t_prixunitairerunanalytique_prr
 INNER JOIN sqe.t_runanalytique_run 
 ON prr_run_id = run_id;
    
-   
+CREATE OR REPLACE VIEW sqe.view_bpu
+AS SELECT * 
+FROM sqe.t_prestation_prs 
+INNER JOIN sqe.t_prixunitaireprestation_prp 
+ON prs_id = prp_prs_id;   
    
 -- Completed on 2022-10-28 10:55:57
 

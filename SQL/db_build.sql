@@ -362,7 +362,7 @@ CREATE OR REPLACE FUNCTION sqe.checkoverlapsprixunitaire()
     -- verification des non-chevauchements pour les operations du dispositif
     SELECT COUNT(*) INTO nbChevauchements
     FROM   sqe.t_prixunitaire_pru
-    WHERE  pru_prs_id = NEW.pru_prs_id 
+    WHERE  pru_id = NEW.pru_id 
            AND (pru_datedebut, pru_datefin) OVERLAPS (NEW.pru_datedebut, NEW.pru_datefin)
     ;
 
