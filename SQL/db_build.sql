@@ -674,6 +674,36 @@ COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_per_nom IS 'Périmètre de gestion 
 COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_stm_cdstationmesureauxsurface IS 'Code SANDRE de la station';
 COMMENT ON COLUMN sqe.t_progannuelle_pga.pga_stm_cdstationmesureinterne IS 'Code provisoire de la station';
 
+-- verif que l'année pga_cal_refannee existe dans cal_refannee (cal_refannee est du texte)
+
+
+CREATE OR REPLACE FUNCTION sqe.checkexistecal_refannee()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ AS $function$   
+
+ DECLARE nbexistecal  INTEGER    ;
+ 
+  BEGIN
+   
+    -- verification des non-chevauchements pour les operations du dispositif
+    SELECT count(*) INTO nbexistecal 
+    FROM   sqe.t_calendrierprog_cal
+    WHERE  cal_refannee = NEW.pga_cal_refannee            
+    ;
+
+    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
+    IF (nbexistecal = 0) THEN 
+      RAISE EXCEPTION 'L''année renseignée dans le programme annuel (pga_cal_refannee) n''existe pas dans le calendrier sqe.t_calendrierprog_cal(cal_refannee)'  ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$;
+
+CREATE TRIGGER checkexistecal_refannee AFTER INSERT OR UPDATE ON 
+    sqe.t_progannuelle_pga FOR EACH ROW EXECUTE FUNCTION  sqe.checkexistecal_refannee();
+
 
 /* Table sqe.t_progannuelle_pga
  * A FAIRE : AJOUTER UN TRIGGER QUI VERIFIE QUE SI 
