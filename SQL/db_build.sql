@@ -701,19 +701,40 @@ CREATE OR REPLACE FUNCTION sqe.checkexistecal_refannee()
   END  ;
 $function$;
 
-CREATE TRIGGER checkexistecal_refannee AFTER INSERT OR UPDATE ON 
+CREATE OR REPLACE TRIGGER checkexistecal_refannee AFTER INSERT OR UPDATE ON 
     sqe.t_progannuelle_pga FOR EACH ROW EXECUTE FUNCTION  sqe.checkexistecal_refannee();
 
+-- VERIFIE QUE LE TYPE DE STATION EXISTE BIEN DANS LE CALENDRIER
+ CREATE OR REPLACE FUNCTION sqe.checkexistepga_cal_typestation()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ AS $function$   
 
-/* Table sqe.t_progannuelle_pga
- * A FAIRE : AJOUTER UN TRIGGER QUI VERIFIE QUE SI 
- * sqe.t_progannuelle_pga.pga_stm_cdstationmesureauxsurface 
- * ALORS IL EST DANS LA TABLE de référence stations.
- * 
- * IDEM pour le code station provisoire*/
+ DECLARE nbexistecal  INTEGER    ;
+ 
+  BEGIN
+   
+    -- verification des non-chevauchements pour les operations du dispositif
+    SELECT count(*) INTO nbexistecal 
+    FROM   sqe.t_calendrierprog_cal
+    WHERE  cal_typestation = NEW.pga_cal_typestation            
+    ;
 
+    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
+    IF (nbexistecal = 0) THEN 
+      RAISE EXCEPTION 'Le type de station renseigné dans le programme annuel (pga_cal_typestation) n''existe pas dans le calendrier sqe.t_calendrierprog_cal(cal_typestation)'  ;
+    END IF  ;
 
+    RETURN NEW ;
+  END  ;
+$function$;
 
+CREATE TRIGGER checkexistecal_typestation AFTER INSERT OR UPDATE ON 
+    sqe.t_progannuelle_pga FOR EACH ROW EXECUTE FUNCTION  sqe.checkexistepga_cal_typestation();
+
+  
+
+   
 
 CREATE TABLE sqe.depotfichier_dfi(
 dfi_iddepot SERIAL PRIMARY KEY,
