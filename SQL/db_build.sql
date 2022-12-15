@@ -646,13 +646,10 @@ pga_per_nom TEXT, -- périmètre de gestion ou de facturation
 pga_cal_typestation TEXT, -- type de station conforme au calendrier
 pga_stm_cdstationmesureauxsurface TEXT,
 pga_stm_cdstationmesureinterne TEXT,
-/* CONSTRAINT c_fk_pga_cal_refannee CHECK (pga_cal_refannee) REFERENCES 
- sqe.t_calendrierprog_cal (cal_refannee), Contrainte qui vérifie que 
- pga_cal_refannee existe dans sqe.t_calendrierprog_cal (cal_refannee)*/
-
-/*CONSTRAINT c_fk_pga_cal_typestation FOREIGN KEY (pga_cal_typestation) REFERENCES 
- sqe.t_calendrierprog_cal (cal_typestation) ON UPDATE CASCADE ON DELETE RESTRICT,*/
-
+CONSTRAINT c_fk_pga_stm_cdstationmesureauxsurface FOREIGN KEY (pga_stm_cdstationmesureauxsurface) REFERENCES 
+ refer.tr_stationmesure_stm (stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE CASCADE,
+ CONSTRAINT c_fk_pga_stm_cdstationmesureinterne FOREIGN KEY (pga_stm_cdstationmesureinterne) REFERENCES 
+ refer.tr_stationmesure_stm (stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT c_fk_pga_mar_id FOREIGN KEY (pga_mar_id) REFERENCES 
  sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_pga_per_nom FOREIGN KEY (pga_per_nom) REFERENCES 
