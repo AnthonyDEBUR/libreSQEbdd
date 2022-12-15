@@ -617,6 +617,10 @@ INSERT INTO refer.tr_qualificationana_qal
 (qal_code, qal_mnemo, qal_libelle)
 VALUES(4, 'Non qualifié', 'Non qualifié');
 
+
+/*
+ * Pour chaque station à quelle date on va faire des prélèvements
+ */
 CREATE TABLE sqe.t_calendrierprog_cal(
 cal_refannee TEXT, -- annee ou période de référence
 cal_mar_id INTEGER ,
@@ -638,6 +642,11 @@ COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_prs_id IS 'Id de la prestation';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_preleveur IS 'Id du préleveur';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_labo IS 'Id du labo';
 
+
+/*
+ * Liée à la table précédente. Pour telle station de mesure je mets en eouvre tel type de programme.
+ * tableaux excels faits avec les unités.
+ */
 
 CREATE TABLE sqe.t_progannuelle_pga(
 pga_cal_refannee TEXT, -- référence année
