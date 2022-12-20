@@ -250,18 +250,20 @@ met_nom TEXT,
 met_statut TEXT
 );
 
-/*
- * 
- * 
- */
 
 CREATE TABLE sqe.t_runanalytique_run(
 run_id serial PRIMARY KEY,
 run_nom TEXT,
 run_met_code TEXT, -- FOREIGN KEY methode sandre
+run_prestataire INTEGER, -- FOREIGN KEY prestataire_id 
 CONSTRAINT c_fk_run_met_code FOREIGN KEY (run_met_code) 
-REFERENCES refer.tr_methode_met  (met_code) ON UPDATE CASCADE ON DELETE RESTRICT
+REFERENCES refer.tr_methode_met  (met_code) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_run_prestataire FOREIGN KEY (run_prestataire) 
+REFERENCES refer.tr_prestataire_pre (pre_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
+COMMENT ON COLUMN sqe.t_runanalytique_run.run_nom IS 'Nom du run analytique';
+COMMENT ON COLUMN sqe.t_runanalytique_run.run_met_code IS 'Code SANDRE méthode d run analytique';
+COMMENT ON COLUMN sqe.t_runanalytique_run.run_prestataire IS 'Identifiant du prestataire en charge de l''analyse du run analytique';
 
 
 /*
@@ -296,10 +298,13 @@ REFERENCES refer.tr_uniteparametre_uni (uni_codesandreunite) ON UPDATE CASCADE O
 CONSTRAINT c_fk_ppt_fra_codefraction FOREIGN KEY (ppt_fra_codefraction) 
 REFERENCES refer.tr_fraction_fra (fra_codefraction) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_ppt_run_id FOREIGN KEY (ppt_run_id) 
-REFERENCES sqe.t_runanalytique_run (run_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT c_ck_nn_codetemporaireparametre CHECK ((ppt_par_cdparametre IS NULL  
-AND ppt_codetemporaireparametre IS  NOT NULL) OR (ppt_par_cdparametre IS NOT NULL) -- si le code sandre n'existe pas il faut un code temporaire
-);
+REFERENCES sqe.t_runanalytique_run (run_id) ON UPDATE CASCADE ON DELETE CASCADE);
+
+ALTER TABLE sqe.t_parametreprogrammetype_ppt 
+ADD CONSTRAINT c_ck_nn_codetemporaireparametre CHECK ((ppt_par_cdparametre IS NULL  
+AND ppt_codetemporaireparametre IS NOT NULL) OR (ppt_par_cdparametre IS NOT NULL) 
+); -- si le code sandre n'existe pas il faut un code temporaire
+
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_prs_id IS 'Identifiant de la prestation';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_par_cdparametre IS 'Code SANDRE du paramètre (clé étrangère)';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_codetemporaireparametre IS 'Code temporaire en attente de code SANDRE';
@@ -310,14 +315,9 @@ COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_accreditation IS 'Accredi
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_commentaireparametre IS 'Commentaire sur le paramètre du prestataire dans le marché en cours';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_run_id IS 'FK t_runanalytique_run. Un paramètre peut être analysé par plusieurs run analytiques différents au sein d''un programme type';
 
-/*
-ALTER TABLE sqe.t_parametreprogrammetype_ppt 
-ADD CONSTRAINT c_ck_nn_codetemporaireparametre 
-CHECK (
-(ppt_par_cdparametre IS NULL AND ppt_codetemporaireparametre IS  NOT NULL) 
-OR (ppt_par_cdparametre IS NOT NULL) -- si le code sandre n'existe pas il faut un code temporaire
-);
-*/
+
+
+
 
 
 /*
