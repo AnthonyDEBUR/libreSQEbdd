@@ -35,7 +35,6 @@ CREATE INDEX tr_intervenantsandre_isa_nom_key ON refer.tr_intervenantsandre_isa 
 
 
 
-
 CREATE TABLE refer.tr_prestataire_pre(
 pre_id serial PRIMARY KEY,
 pre_nom TEXT,
