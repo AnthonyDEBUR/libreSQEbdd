@@ -261,7 +261,11 @@ CONSTRAINT c_fk_run_prestataire FOREIGN KEY (run_prestataire)
 REFERENCES refer.tr_prestataire_pre (pre_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 COMMENT ON COLUMN sqe.t_runanalytique_run.run_nom IS 'Nom du run analytique';
+<<<<<<< HEAD
 COMMENT ON COLUMN sqe.t_runanalytique_run.run_met_code IS 'Code SANDRE méthode du run analytique';
+=======
+COMMENT ON COLUMN sqe.t_runanalytique_run.run_met_code IS 'Code SANDRE méthode d run analytique';
+>>>>>>> branch 'main' of https://github.com/AnthonyDEBUR/libreSQEbdd
 COMMENT ON COLUMN sqe.t_runanalytique_run.run_prestataire IS 'Identifiant du prestataire en charge de l''analyse du run analytique';
 
 
@@ -314,6 +318,13 @@ COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_accreditation IS 'Accredi
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_commentaireparametre IS 'Commentaire sur le paramètre du prestataire dans le marché en cours';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_run_id IS 'FK t_runanalytique_run. Un paramètre peut être analysé par plusieurs run analytiques différents au sein d''un programme type';
 
+<<<<<<< HEAD
+=======
+
+
+
+
+>>>>>>> branch 'main' of https://github.com/AnthonyDEBUR/libreSQEbdd
 
 /*
  * 
