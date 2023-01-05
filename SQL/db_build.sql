@@ -166,7 +166,8 @@ prs_pre_id INTEGER, -- identifiant du prestataire
 prs_label_prestation TEXT, -- label (nom court) de la prestation
 prs_nomprestation TEXT,
 prs_natureprestation TEXT,
-prm_unitedoeuvre TEXT, -- A VOIR SI UTILE 
+prm_unitedoeuvre TEXT,-- A VOIR SI UTILE
+prs_idprestationdansbpu TEXT, 
 CONSTRAINT  c_fk_prs_mar_id FOREIGN KEY (prs_mar_id) REFERENCES sqe.t_marche_mar(mar_id) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT  c_fk_prs_pre_id FOREIGN KEY (prs_pre_id) REFERENCES refer.tr_prestataire_pre(pre_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
@@ -174,6 +175,7 @@ COMMENT ON COLUMN sqe.t_prestation_prs.prs_pre_id IS 'Identifiant du prestataire
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_mar_id IS 'Identifiant marché';
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_id IS 'Identifiant de la prestation';
 COMMENT ON COLUMN sqe.t_prestation_prs.prs_label_prestation IS 'Label (nom court) de la prestation';
+COMMENT ON COLUMN sqe.t_prestation_prs.prs_idprestationdansbpu IS 'identifiant de la prestation dans le BPU';
 
 ALTER TABLE sqe.t_prestation_prs OWNER TO grp_eptbv_planif_dba;
 
@@ -277,6 +279,8 @@ ppt_codetemporaireparametre TEXT, -- code temporaire en attente de code SANDRE
 ppt_fra_codefraction TEXT,
 ppt_nomparametre TEXT,
 ppt_uni_codesandreunite TEXT,
+ppt_met_codesandremethode TEXT,
+ppt_pre_id INTEGER, -- Id du prestataire en charge de l'analyse
 ppt_analyseinsitu BOOLEAN,
 ppt_limitedetec NUMERIC, -- limite de détection garantie par le prestataire
 ppt_limitequantif NUMERIC, -- limite garantie par le prestataire
@@ -293,8 +297,10 @@ CONSTRAINT c_fk_ppt_uni_codesandreunite FOREIGN KEY (ppt_uni_codesandreunite)
 REFERENCES refer.tr_uniteparametre_uni (uni_codesandreunite) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_ppt_fra_codefraction FOREIGN KEY (ppt_fra_codefraction) 
 REFERENCES refer.tr_fraction_fra (fra_codefraction) ON UPDATE CASCADE ON DELETE RESTRICT,
-CONSTRAINT c_fk_ppt_run_id FOREIGN KEY (ppt_run_id) 
-REFERENCES sqe.t_runanalytique_run (run_id) ON UPDATE CASCADE ON DELETE CASCADE);
+CONSTRAINT c_fk_ppt_fra_codemethode FOREIGN KEY (ppt_met_codesandremethode) 
+REFERENCES refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_ppt_pre_id FOREIGN KEY (ppt_pre_id) 
+REFERENCES refer.tr_prestataire_pre (pre_id) ON UPDATE CASCADE ON DELETE CASCADE);
 
 ALTER TABLE sqe.t_parametreprogrammetype_ppt 
 ADD CONSTRAINT c_ck_nn_codetemporaireparametre CHECK ((ppt_par_cdparametre IS NULL  
@@ -310,6 +316,8 @@ COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_incertitude IS 'Code temp
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_accreditation IS 'Accreditation du prestataire ';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_commentaireparametre IS 'Commentaire sur le paramètre du prestataire dans le marché en cours';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_run_id IS 'FK t_runanalytique_run. Un paramètre peut être analysé par plusieurs run analytiques différents au sein d''un programme type';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_met_codesandremethode IS 'Code méthode SANDRE';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_pre_id IS 'id du prestataire en charge de l''analyse';
 
 
 /*
@@ -613,30 +621,31 @@ VALUES(4, 'Non qualifié', 'Non qualifié');
 /*
  * Pour chaque station à quelle date on va faire des prélèvements
  */
+DROP TABLE sqe.t_calendrierprog_cal;
 CREATE TABLE sqe.t_calendrierprog_cal(
 cal_refannee TEXT, -- annee ou période de référence
 cal_mar_id INTEGER ,
-cal_typestation TEXT,
+cal_typestation TEXT NOT NULL,
 cal_date DATE, -- date prévisionnelle d'intervention
 cal_prs_id INTEGER,-- id de la prestation (ie. nom du prog type)
 cal_preleveur INTEGER, -- id du préleveur
-cal_labo INTEGER, -- id du labo
+cal_rattachement_bdc TEXT NOT NULL, -- pour grouper les bons de commande d'un même périmètre de gestion
 CONSTRAINT c_fk_cal_mar_id FOREIGN KEY (cal_mar_id) REFERENCES 
  sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_cal_prs_id FOREIGN KEY (cal_prs_id) REFERENCES 
- sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE RESTRICT
-);
+ sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_cal_preleveur FOREIGN KEY (cal_preleveur) REFERENCES 
+refer.tr_prestataire_pre (pre_id) ON UPDATE CASCADE ON DELETE RESTRICT);
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_refannee IS 'Annee ou période de référence';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_mar_id IS 'Identifiant du marché';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_typestation IS 'Typologie de la station';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_date IS 'Date d intervention';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_prs_id IS 'Id de la prestation';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_preleveur IS 'Id du préleveur';
-COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_labo IS 'Id du labo';
 
 
 /*
- * Liée à la table précédente. Pour telle station de mesure je mets en eouvre tel type de programme.
+ * Liée à la table précédente. Pour telle station de mesure je mets en oeuvre tel type de programme.
  * tableaux excels faits avec les unités.
  */
 
