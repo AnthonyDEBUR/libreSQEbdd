@@ -185,13 +185,16 @@ stp_nom TEXT PRIMARY KEY,
 stp_description TEXT
 );
 
-INSERT INTO refer.tr_statutpresta_stp VALUES ('Programmé', 'Bon de commande prêt à être émis');
-INSERT INTO refer.tr_statutpresta_stp VALUES ('Emis', 'Bon de commande emis');
+INSERT INTO refer.tr_statutpresta_stp VALUES ('1-projet', 'Bon de commande prêt à être émis');
+INSERT INTO refer.tr_statutpresta_stp VALUES ('2-à la signature', 'Bon de commande dans le circuit de signature');
+INSERT INTO refer.tr_statutpresta_stp VALUES ('3-signé', 'Bon de commande signé, en attente de transmission au prestataire');
+INSERT INTO refer.tr_statutpresta_stp VALUES ('4-émis', 'Bon de commande transmis au prestataire');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Prélevé', 'Prélèvement fait');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Analysé', 'Analyse rendue');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
 
 -- DROP TABLE sqe.t_boncommande_bco CASCADE;
+DROP TABLE sqe.t_boncommande_bco;
 
 CREATE TABLE sqe.t_boncommande_bco(
 bco_id serial PRIMARY KEY,
@@ -201,7 +204,6 @@ bco_refcommande TEXT,
 bco_stp_nom TEXT, -- Statut
 bco_date_prev DATE, -- Date prévisionnelle de la prestation 
 bco_commentaires TEXT,
-bco_nbpresta INTEGER,
 CONSTRAINT c_fk_bco_prs_id FOREIGN KEY (bco_prs_id) 
 REFERENCES sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT c_fk_per_nom FOREIGN KEY (bco_per_nom) 
@@ -628,27 +630,25 @@ cal_mar_id INTEGER ,
 cal_typestation TEXT NOT NULL,
 cal_date DATE, -- date prévisionnelle d'intervention
 cal_prs_id INTEGER,-- id de la prestation (ie. nom du prog type)
-cal_preleveur INTEGER, -- id du préleveur
 cal_rattachement_bdc TEXT NOT NULL, -- pour grouper les bons de commande d'un même périmètre de gestion
 CONSTRAINT c_fk_cal_mar_id FOREIGN KEY (cal_mar_id) REFERENCES 
  sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_cal_prs_id FOREIGN KEY (cal_prs_id) REFERENCES 
- sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE RESTRICT,
-CONSTRAINT c_fk_cal_preleveur FOREIGN KEY (cal_preleveur) REFERENCES 
-refer.tr_prestataire_pre (pre_id) ON UPDATE CASCADE ON DELETE RESTRICT);
+ sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE RESTRICT);
+
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_refannee IS 'Annee ou période de référence';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_mar_id IS 'Identifiant du marché';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_typestation IS 'Typologie de la station';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_date IS 'Date d intervention';
 COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_prs_id IS 'Id de la prestation';
-COMMENT ON COLUMN sqe.t_calendrierprog_cal.cal_preleveur IS 'Id du préleveur';
+
 
 
 /*
  * Liée à la table précédente. Pour telle station de mesure je mets en oeuvre tel type de programme.
  * tableaux excels faits avec les unités.
  */
-
+DROP TABLE sqe.t_progannuelle_pga;
 CREATE TABLE sqe.t_progannuelle_pga(
 pga_cal_refannee TEXT, -- référence année
 pga_mar_id INTEGER, -- id marché
@@ -764,6 +764,7 @@ refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON D
 
 -- table héritée 
 CREATE TABLE sqe.t_resultatanalyse_rea(
+rea_bco_id INTEGER, --FK
 rea_cdsupport TEXT, 
 rea_cdfractionanalysee TEXT,
 rea_heureprel TIME, -- FAut il mettre time WITH time ZONE ?
@@ -776,8 +777,8 @@ rea_cdrqana TEXT,
 rea_cdinsituana TEXT,
 rea_profondeurpre NUMERIC,
 rea_cddifficulteana NUMERIC,
-rea_ldana NUMERIC, -- ? NUMERIC
-rea_lqana NUMERIC, -- ? NUMERIC
+rea_ldana NUMERIC, --  NUMERIC
+rea_lqana NUMERIC, -- NUMERIC
 rea_lsana NUMERIC,
 rea_cdmetfractionnement TEXT,
 rea_cdmethode TEXT,
@@ -812,7 +813,9 @@ CONSTRAINT c_fk_rea_cdpreleveur FOREIGN KEY (rea_cdpreleveur) REFERENCES
 CONSTRAINT c_fk_rea_cdlaboratoire FOREIGN KEY (rea_cdlaboratoire) REFERENCES 
  refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
  CONSTRAINT c_fk_rea_dfi_iddepot FOREIGN KEY (rea_dfi_iddepot) REFERENCES 
- sqe.depotfichier_dfi (dfi_iddepot) ON UPDATE CASCADE ON DELETE CASCADE
+ sqe.depotfichier_dfi (dfi_iddepot) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_fk_rea_bco_id FOREIGN KEY (rea_bco_id) REFERENCES 
+sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE ON DELETE RESTRICT
 ) INHERITS (sqe.t_resultat_res);
 
 -- table héritée 
@@ -881,6 +884,17 @@ refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON D
  ) INHERITS (sqe.t_resultat_res);
  
  
+
+/* TABLE PREVISION RESULTATS 
+table créé à partir de la prog annuelle et qui contient les résultats attendus
+*/
+
+
+
+
+
+
+
 /* ==============================
  *             VIEWS 
  */   
