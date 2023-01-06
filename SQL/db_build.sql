@@ -194,16 +194,20 @@ INSERT INTO refer.tr_statutpresta_stp VALUES ('Analysé', 'Analyse rendue');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
 
 -- DROP TABLE sqe.t_boncommande_bco CASCADE;
-DROP TABLE sqe.t_boncommande_bco;
+DROP TABLE IF EXISTS sqe.t_boncommande_quantitatif_bcq;
+DROP TABLE IF EXISTS sqe.t_boncommande_bco CASCADE;
 
 CREATE TABLE sqe.t_boncommande_bco(
 bco_id serial PRIMARY KEY,
-bco_prs_id integer NOT NULL, -- attention dans la table t_resultatanalyse_rea on ignore le bco mais on en aura besoin, donc il faut NOT null
+bco_mar_id INTEGER NOT NULL, --fk
+bco_prs_id integer NOT NULL, 
 bco_per_nom TEXT,
-bco_refcommande TEXT,
+bco_refcommande TEXT NOT NULL,
 bco_stp_nom TEXT, -- Statut
 bco_date_prev DATE, -- Date prévisionnelle de la prestation 
 bco_commentaires TEXT,
+CONSTRAINT c_fk_bco_mar_id FOREIGN KEY (bco_mar_id) 
+REFERENCES sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT c_fk_bco_prs_id FOREIGN KEY (bco_prs_id) 
 REFERENCES sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT c_fk_per_nom FOREIGN KEY (bco_per_nom) 
@@ -215,6 +219,79 @@ COMMENT ON COLUMN sqe.t_boncommande_bco.bco_per_nom IS 'Périmètre du bon de co
 COMMENT ON COLUMN sqe.t_boncommande_bco.bco_refcommande IS 'Référence du bon de commande';
 COMMENT ON COLUMN sqe.t_boncommande_bco.bco_stp_nom IS 'Statut du bon de commande';
 COMMENT ON COLUMN sqe.t_boncommande_bco.bco_date_prev IS 'Date prévisionnelle de la prestation';
+
+-- VERIFIE QUE LA PRESTATION EXISTE BIEN DANS LE MARCHE
+ CREATE OR REPLACE FUNCTION sqe.checkexistebco_prs_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ AS $function$   
+
+ DECLARE nbexistecal  INTEGER    ;
+ 
+  BEGIN
+   
+    -- verification des non-chevauchements pour les operations du dispositif
+    SELECT count(*) INTO nbexistecal 
+    FROM   sqe.t_prestation_prs
+    WHERE  prs_id = NEW.bco_prs_id 
+    AND    prs_mar_id = NEW.bco_mar_id
+    ;
+
+    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
+    IF (nbexistecal = 0) THEN 
+      RAISE EXCEPTION 'Le type de prestation à ajouter dans la table t_boncommande_quantitatif_bcq n''existe pas dans la table t_boncommande_bco pour le bon de commande sélectionné'  ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$;
+
+CREATE TRIGGER checkexistebco_prs_id AFTER INSERT OR UPDATE ON 
+    sqe.t_boncommande_bco FOR EACH ROW EXECUTE FUNCTION  sqe.checkexistebco_prs_id();
+
+
+/* quantitatif bdc */
+CREATE TABLE sqe.t_boncommande_quantitatif_bcq(
+bcq_bco_id INTEGER, -- fk
+bcq_prs_id INTEGER, 
+bcq_nbprestacom NUMERIC,
+bcq_nbprestareal NUMERIC,
+CONSTRAINT c_fk_bcq_bco_id FOREIGN KEY (bcq_bco_id) 
+REFERENCES sqe.t_boncommande_bco (bco_id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestacom IS 'Nombre de prestations commandées';
+COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestareal IS 'Nombre de prestations réalisées';
+
+-- VERIFIE QUE LA PRESTATION EXISTE BIEN DANS LE BON DE COMMANDE
+ CREATE OR REPLACE FUNCTION sqe.checkexistebcq_prs_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ AS $function$   
+
+ DECLARE nbexistecal  INTEGER    ;
+ 
+  BEGIN
+   
+    -- verification des non-chevauchements pour les operations du dispositif
+    SELECT count(*) INTO nbexistecal 
+    FROM   sqe.t_boncommande_bco
+    WHERE  bco_prs_id = NEW.bcq_prs_id 
+    AND    bco_id = NEW.bcq_bco_id
+    ;
+
+    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
+    IF (nbexistecal = 0) THEN 
+      RAISE EXCEPTION 'Le type de prestation à ajouter dans la table t_boncommande_quantitatif_bcq n''existe pas dans la table t_boncommande_bco pour le bon de commande sélectionné'  ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$;
+
+CREATE TRIGGER checkexistebcq_prs_id AFTER INSERT OR UPDATE ON 
+    sqe.t_boncommande_quantitatif_bcq FOR EACH ROW EXECUTE FUNCTION  sqe.checkexistebcq_prs_id();
+
 
 /*
  * programme type
