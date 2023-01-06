@@ -200,16 +200,16 @@ DROP TABLE IF EXISTS sqe.t_boncommande_bco CASCADE;
 CREATE TABLE sqe.t_boncommande_bco(
 bco_id serial PRIMARY KEY,
 bco_mar_id INTEGER NOT NULL, --fk
-bco_prs_id integer NOT NULL, 
+-- bco_prs_id integer NOT NULL, 
 bco_per_nom TEXT,
 bco_refcommande TEXT NOT NULL,
 bco_stp_nom TEXT, -- Statut
-bco_date_prev DATE, -- Date prévisionnelle de la prestation 
+-- bco_date_prev DATE, -- Date prévisionnelle de la prestation 
 bco_commentaires TEXT,
 CONSTRAINT c_fk_bco_mar_id FOREIGN KEY (bco_mar_id) 
 REFERENCES sqe.t_marche_mar (mar_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT c_fk_bco_prs_id FOREIGN KEY (bco_prs_id) 
-REFERENCES sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
+/*CONSTRAINT c_fk_bco_prs_id FOREIGN KEY (bco_prs_id) 
+REFERENCES sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE CASCADE,*/
 CONSTRAINT c_fk_per_nom FOREIGN KEY (bco_per_nom) 
 REFERENCES refer.tr_perimetre_per (per_nom) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_bco_stp_nom FOREIGN KEY (bco_stp_nom) 
@@ -218,10 +218,11 @@ REFERENCES refer.tr_statutpresta_stp (stp_nom) ON UPDATE CASCADE ON DELETE RESTR
 COMMENT ON COLUMN sqe.t_boncommande_bco.bco_per_nom IS 'Périmètre du bon de commande (ex territoireX_projetY';
 COMMENT ON COLUMN sqe.t_boncommande_bco.bco_refcommande IS 'Référence du bon de commande';
 COMMENT ON COLUMN sqe.t_boncommande_bco.bco_stp_nom IS 'Statut du bon de commande';
-COMMENT ON COLUMN sqe.t_boncommande_bco.bco_date_prev IS 'Date prévisionnelle de la prestation';
+-- COMMENT ON COLUMN sqe.t_boncommande_bco.bco_date_prev IS 'Date prévisionnelle de la prestation';
+
 
 -- VERIFIE QUE LA PRESTATION EXISTE BIEN DANS LE MARCHE
- CREATE OR REPLACE FUNCTION sqe.checkexistebco_prs_id()
+/* CREATE OR REPLACE FUNCTION sqe.checkexistebco_prs_id()
  RETURNS trigger
  LANGUAGE plpgsql
  AS $function$   
@@ -248,7 +249,7 @@ $function$;
 
 CREATE TRIGGER checkexistebco_prs_id AFTER INSERT OR UPDATE ON 
     sqe.t_boncommande_bco FOR EACH ROW EXECUTE FUNCTION  sqe.checkexistebco_prs_id();
-
+*/
 
 /* quantitatif bdc */
 CREATE TABLE sqe.t_boncommande_quantitatif_bcq(
@@ -263,34 +264,24 @@ REFERENCES sqe.t_boncommande_bco (bco_id) ON UPDATE CASCADE ON DELETE CASCADE
 COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestacom IS 'Nombre de prestations commandées';
 COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestareal IS 'Nombre de prestations réalisées';
 
--- VERIFIE QUE LA PRESTATION EXISTE BIEN DANS LE BON DE COMMANDE
- CREATE OR REPLACE FUNCTION sqe.checkexistebcq_prs_id()
- RETURNS trigger
- LANGUAGE plpgsql
- AS $function$   
+/* prog bdc : programme du bon de commande */
+CREATE TABLE sqe.t_boncommande_pgm_bcp(
+bcp_bco_id INTEGER, -- fk
+bcp_prs_id INTEGER, -- id de la prestation
+bcp_dateinterv DATE, -- date prévisionnelle d'intervention
+bcp_stm_cdstationmesureinterne TEXT, --fk
+CONSTRAINT c_fk_bcp_bco_id FOREIGN KEY (bcp_bco_id) 
+REFERENCES sqe.t_boncommande_bco (bco_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_fk_bcp_prs_id FOREIGN KEY (bcp_prs_id) 
+REFERENCES sqe.t_prestation_prs (prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT c_fk_bcp_stm_cdstationmesureinterne FOREIGN KEY (bcp_stm_cdstationmesureinterne) 
+REFERENCES refer.tr_stationmesure_stm (stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE CASCADE
+);
 
- DECLARE nbexistecal  INTEGER    ;
- 
-  BEGIN
-   
-    -- verification des non-chevauchements pour les operations du dispositif
-    SELECT count(*) INTO nbexistecal 
-    FROM   sqe.t_boncommande_bco
-    WHERE  bco_prs_id = NEW.bcq_prs_id 
-    AND    bco_id = NEW.bcq_bco_id
-    ;
+COMMENT ON COLUMN sqe.t_boncommande_pgm_bcp.bcp_prs_id IS 'id de la prestation';
+COMMENT ON COLUMN sqe.t_boncommande_pgm_bcp.bcp_dateinterv IS 'date prévisionnelle d''intervention';
 
-    -- Comme le trigger est declenche sur AFTER et non pas sur BEFORE, il faut (nbChevauchements > 1) et non pas >0, car l enregistrement a deja ete ajoute, donc il se chevauche avec lui meme, ce qui est normal !
-    IF (nbexistecal = 0) THEN 
-      RAISE EXCEPTION 'Le type de prestation à ajouter dans la table t_boncommande_quantitatif_bcq n''existe pas dans la table t_boncommande_bco pour le bon de commande sélectionné'  ;
-    END IF  ;
 
-    RETURN NEW ;
-  END  ;
-$function$;
-
-CREATE TRIGGER checkexistebcq_prs_id AFTER INSERT OR UPDATE ON 
-    sqe.t_boncommande_quantitatif_bcq FOR EACH ROW EXECUTE FUNCTION  sqe.checkexistebcq_prs_id();
 
 
 /*
@@ -831,17 +822,19 @@ CONSTRAINT c_fk_dfi_bco_id FOREIGN KEY (dfi_bco_id) REFERENCES
 
 DROP TABLE IF EXISTS sqe.t_resultat_res CASCADE;
 CREATE TABLE sqe.t_resultat_res(
-res_stm_cdstationmesureauxsurface TEXT,
+res_stm_cdstationmesureinterne TEXT NOT NULL,
 res_codeprel TEXT,
 res_dateprel DATE,
-CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
-refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT
+res_bco_id INTEGER NOT NULL,
+CONSTRAINT c_fk_res_stm_cdstationmesureinterne FOREIGN KEY (res_stm_cdstationmesureinterne) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE RESTRICT,
+CONSTRAINT c_fk_res_bco_id FOREIGN KEY (res_bco_id) REFERENCES 
+sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE
 );
 
 
 -- table héritée 
 CREATE TABLE sqe.t_resultatanalyse_rea(
-rea_bco_id INTEGER, --FK
 rea_cdsupport TEXT, 
 rea_cdfractionanalysee TEXT,
 rea_heureprel TIME, -- FAut il mettre time WITH time ZONE ?
@@ -873,8 +866,10 @@ rea_cdpreleveur TEXT, --FK
 rea_cdlaboratoire TEXT,--FK
 rea_dfi_iddepot INTEGER NOT NULL,
 rea_datemodif DATE DEFAULT NOW()::date,
-CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
-refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_res_stm_cdstationmesureinterne FOREIGN KEY (res_stm_cdstationmesureinterne) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_res_bco_id FOREIGN KEY (res_bco_id) REFERENCES 
+sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE,  -- il faut redéfinir les contraintes dans la TABLE héritée
 CONSTRAINT c_fk_rea_par_cdparametre FOREIGN KEY (rea_par_cdparametre) REFERENCES 
 refer.tr_parametre_par(par_cdparametre) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_rea_qal_cdqualana FOREIGN KEY (rea_qal_cdqualana) REFERENCES 
@@ -890,9 +885,7 @@ CONSTRAINT c_fk_rea_cdpreleveur FOREIGN KEY (rea_cdpreleveur) REFERENCES
 CONSTRAINT c_fk_rea_cdlaboratoire FOREIGN KEY (rea_cdlaboratoire) REFERENCES 
  refer.tr_intervenantsandre_isa (isa_codesandre) ON UPDATE CASCADE ON DELETE RESTRICT,
  CONSTRAINT c_fk_rea_dfi_iddepot FOREIGN KEY (rea_dfi_iddepot) REFERENCES 
- sqe.depotfichier_dfi (dfi_iddepot) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT c_fk_rea_bco_id FOREIGN KEY (rea_bco_id) REFERENCES 
-sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE ON DELETE RESTRICT
+ sqe.depotfichier_dfi (dfi_iddepot) ON UPDATE CASCADE ON DELETE CASCADE
 ) INHERITS (sqe.t_resultat_res);
 
 -- table héritée 
@@ -909,10 +902,12 @@ rec_heureparenv TIME,
 rec_met_code TEXT,
 rec_cdproducteur TEXT,
 rec_cdpreleveur TEXT,
+CONSTRAINT c_fk_res_stm_cdstationmesureinterne FOREIGN KEY (res_stm_cdstationmesureinterne) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_res_bco_id FOREIGN KEY (res_bco_id) REFERENCES 
+sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE,  -- il faut redéfinir les contraintes dans la TABLE héritée
 CONSTRAINT c_fk_rec_par_cdparametre FOREIGN KEY (rec_par_cdparametre) REFERENCES 
 refer.tr_parametre_par(par_cdparametre) ON UPDATE CASCADE ON DELETE RESTRICT,
-CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
-refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
 CONSTRAINT c_fk_rec_qal_cdqualana FOREIGN KEY (rec_qal_cdqualana) REFERENCES 
 refer.tr_qualificationana_qal(qal_code) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_rec_cdproducteur FOREIGN KEY (rec_cdproducteur) REFERENCES 
@@ -942,8 +937,10 @@ refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT
  reo_cdfinaliteprel TEXT,
  reo_commentairesprel TEXT,
  reo_rdd_cdrdd TEXT,
- CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
-refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+ CONSTRAINT c_fk_res_stm_cdstationmesureinterne FOREIGN KEY (res_stm_cdstationmesureinterne) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_res_bco_id FOREIGN KEY (res_bco_id) REFERENCES 
+sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE,  -- il faut redéfinir les contraintes dans la TABLE héritée
 CONSTRAINT c_fk_reo_met_code FOREIGN KEY (reo_met_code) REFERENCES 
 refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT,
  CONSTRAINT c_fk_reo_rdd_cdrdd FOREIGN KEY (reo_rdd_cdrdd) REFERENCES 
@@ -956,8 +953,10 @@ refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT,
  ree_datereceptech DATE,
  ree_heurereceptech TIME,
  ree_temperaturereceptech NUMERIC,
- CONSTRAINT c_fk_res_stm_cdstationmesureauxsurface FOREIGN KEY (res_stm_cdstationmesureauxsurface) REFERENCES 
-refer.tr_stationmesure_stm(stm_cdstationmesureauxsurface) ON UPDATE CASCADE ON DELETE RESTRICT-- il faut redéfinir les contraintes dans la TABLE héritée
+ CONSTRAINT c_fk_res_stm_cdstationmesureinterne FOREIGN KEY (res_stm_cdstationmesureinterne) REFERENCES 
+refer.tr_stationmesure_stm(stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
+CONSTRAINT c_fk_res_bco_id FOREIGN KEY (res_bco_id) REFERENCES 
+sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE  -- il faut redéfinir les contraintes dans la TABLE héritée
  ) INHERITS (sqe.t_resultat_res);
  
  
