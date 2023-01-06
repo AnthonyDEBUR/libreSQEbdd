@@ -294,11 +294,15 @@ par_cdparametre TEXT PRIMARY KEY,
 par_nomparametre TEXT,
 par_statutparametre TEXT,
 par_nomcourt TEXT,
-par_codecas TEXT
+par_codecas TEXT,
+par_codesandre TEXT,
+par_codetemporaire TEXT
 );
 -- indexation des noms de paramtres
 CREATE INDEX tr_parametre_par_nom_key ON refer.tr_parametre_par USING btree (par_nomparametre);
-
+COMMENT ON COLUMN refer.tr_parametre_par.par_cdparametre IS 'code du paramètre interne à libreSQE (cdSandre ou cdTemporaire)';
+COMMENT ON COLUMN refer.tr_parametre_par.par_codesandre IS 'code sandre du paramètre';
+COMMENT ON COLUMN refer.tr_parametre_par.par_codetemporaire IS 'code temporaire du paramètre';
 
 
 CREATE TABLE refer.tr_uniteparametre_uni(
@@ -344,11 +348,10 @@ ppt_id serial PRIMARY KEY,
 ppt_prs_id INTEGER, -- Identifiant de la prestation
 ppt_mar_id INTEGER NOT NULL,
 ppt_run_id INTEGER, --FK t_runanalytique_run. Un paramètre peut être analysé par plusieurs run analytiques différents au sein d'un programme type
-ppt_par_cdparametre TEXT, -- code SANDRE du paramètre (clé étrangère)
-ppt_codetemporaireparametre TEXT, -- code temporaire en attente de code SANDRE
-ppt_fra_codefraction TEXT,
+ppt_par_cdparametre TEXT NOT NULL, -- code LIBRESQE du paramètre (clé étrangère)
+ppt_fra_codefraction TEXT NOT NULL,
 ppt_nomparametre TEXT,
-ppt_uni_codesandreunite TEXT,
+ppt_uni_codesandreunite TEXT NOT NULL,
 ppt_met_codesandremethode TEXT,
 ppt_pre_id INTEGER, -- Id du prestataire en charge de l'analyse
 ppt_analyseinsitu BOOLEAN,
@@ -372,14 +375,8 @@ REFERENCES refer.tr_methode_met (met_code) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_ppt_pre_id FOREIGN KEY (ppt_pre_id) 
 REFERENCES refer.tr_prestataire_pre (pre_id) ON UPDATE CASCADE ON DELETE CASCADE);
 
-ALTER TABLE sqe.t_parametreprogrammetype_ppt 
-ADD CONSTRAINT c_ck_nn_codetemporaireparametre CHECK ((ppt_par_cdparametre IS NULL  
-AND ppt_codetemporaireparametre IS NOT NULL) OR (ppt_par_cdparametre IS NOT NULL) 
-); -- si le code sandre n'existe pas il faut un code temporaire
-
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_prs_id IS 'Identifiant de la prestation';
-COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_par_cdparametre IS 'Code SANDRE du paramètre (clé étrangère)';
-COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_codetemporaireparametre IS 'Code temporaire en attente de code SANDRE';
+COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_par_cdparametre IS 'Code SANDRE ou temporaire du paramètre (clé étrangère)';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_limitedetec IS 'Limite de détection garantie par le prestataire';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_limitequantif IS 'Limite de quantification garantie par le prestataire';
 COMMENT ON COLUMN sqe.t_parametreprogrammetype_ppt.ppt_incertitude IS 'Code temporaire en attente de code SANDRE';
@@ -864,7 +861,7 @@ rea_rdd_cdrdd TEXT, --FK
 rea_cdproducteur TEXT, --FK
 rea_cdpreleveur TEXT, --FK
 rea_cdlaboratoire TEXT,--FK
-rea_dfi_iddepot INTEGER NOT NULL,
+rea_dfi_iddepot INTEGER,
 rea_datemodif DATE DEFAULT NOW()::date,
 CONSTRAINT c_fk_res_stm_cdstationmesureinterne FOREIGN KEY (res_stm_cdstationmesureinterne) REFERENCES 
 refer.tr_stationmesure_stm(stm_cdstationmesureinterne) ON UPDATE CASCADE ON DELETE RESTRICT,  -- il faut redéfinir les contraintes dans la TABLE héritée
@@ -987,6 +984,27 @@ FROM sqe.t_prestation_prs
 INNER JOIN sqe.t_prixunitaireprestation_prp 
 ON prs_id = prp_prs_id;   
    
+CREATE OR REPLACE VIEW sqe.view_bdc
+AS SELECT * 
+FROM sqe.t_boncommande_bco 
+INNER JOIN sqe.t_marche_mar 
+ON  bco_mar_id= mar_id;   
+  
+CREATE OR REPLACE VIEW sqe.view_bdc_quantif
+AS SELECT mar_reference ,mar_nom, bco_per_nom , bco_refcommande,
+bco_commentaires , prs_idprestationdansbpu, prs_label_prestation,
+bcq_nbprestacom, pre_nom 
+FROM sqe.t_boncommande_bco 
+INNER JOIN sqe.t_marche_mar 
+ON  bco_mar_id= mar_id
+INNER JOIN sqe.t_boncommande_quantitatif_bcq
+ON bco_id=bcq_bco_id
+INNER JOIN sqe.t_prestation_prs
+ON bcq_prs_id=prs_id
+INNER JOIN refer.tr_prestataire_pre
+ON prs_pre_id=pre_id;   
+  
+  
 
 
 /* 
