@@ -194,7 +194,7 @@ INSERT INTO refer.tr_statutpresta_stp VALUES ('Analysé', 'Analyse rendue');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
 
 -- DROP TABLE sqe.t_boncommande_bco CASCADE;
-DROP TABLE IF EXISTS sqe.t_boncommande_quantitatif_bcq;
+DROP TABLE IF EXISTS sqe.t_boncommande_quantitatif_bcq CASCADE;
 DROP TABLE IF EXISTS sqe.t_boncommande_bco CASCADE;
 
 CREATE TABLE sqe.t_boncommande_bco(
@@ -265,6 +265,7 @@ COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestacom IS 'Nombre d
 COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestareal IS 'Nombre de prestations réalisées';
 
 /* prog bdc : programme du bon de commande */
+DROP TABLE IF EXISTS sqe.t_boncommande_pgm_bcp;
 CREATE TABLE sqe.t_boncommande_pgm_bcp(
 bcp_bco_id INTEGER, -- fk
 bcp_prs_id INTEGER, -- id de la prestation
@@ -958,11 +959,6 @@ sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE  -- il faut redéfinir les contr
  
  
 
-/* TABLE PREVISION RESULTATS 
-table créé à partir de la prog annuelle et qui contient les résultats attendus
-*/
-
-
 
 
 
@@ -992,8 +988,9 @@ ON  bco_mar_id= mar_id;
   
 CREATE OR REPLACE VIEW sqe.view_bdc_quantif
 AS SELECT mar_reference ,mar_nom, bco_per_nom , bco_refcommande,
-bco_commentaires , prs_idprestationdansbpu, prs_label_prestation,
-bcq_nbprestacom, pre_nom 
+bco_commentaires, prs_idprestationdansbpu, prs_label_prestation,
+bcq_nbprestacom,
+pre_nom, pre_id 
 FROM sqe.t_boncommande_bco 
 INNER JOIN sqe.t_marche_mar 
 ON  bco_mar_id= mar_id
@@ -1002,8 +999,25 @@ ON bco_id=bcq_bco_id
 INNER JOIN sqe.t_prestation_prs
 ON bcq_prs_id=prs_id
 INNER JOIN refer.tr_prestataire_pre
-ON prs_pre_id=pre_id;   
+ON prs_pre_id=pre_id
+;   
   
+CREATE OR REPLACE VIEW sqe.view_bdc_quantif_par_staq
+AS SELECT mar_reference ,mar_nom, bco_per_nom , bco_refcommande,
+bco_commentaires, prs_idprestationdansbpu, prs_label_prestation,
+pre_nom, pre_id, bcp_stm_cdstationmesureinterne,bcp_dateinterv
+FROM sqe.t_boncommande_bco 
+INNER JOIN sqe.t_marche_mar 
+ON  bco_mar_id= mar_id
+INNER JOIN sqe.t_boncommande_pgm_bcp
+ON bco_id=bcp_bco_id
+INNER JOIN sqe.t_prestation_prs
+ON bcp_prs_id=prs_id
+INNER JOIN refer.tr_prestataire_pre
+ON prs_pre_id=pre_id
+;   
+
+
   
 
 
