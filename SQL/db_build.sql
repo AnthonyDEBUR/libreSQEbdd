@@ -96,6 +96,7 @@ mar_id serial PRIMARY KEY,
 mar_pre_id TEXT, -- Titulaire du marché.
 mar_reference TEXT, -- référence du marché
 mar_nom TEXT UNIQUE, -- nom du marché
+mar_nom_long TEXT, -- libellé long du marché
 mar_montantmin NUMERIC,
 mar_montantmax NUMERIC,
 mar_datedebut DATE, -- date début validité marché (date premier prélèvement)
@@ -128,6 +129,7 @@ COMMENT ON COLUMN sqe.t_marche_mar.mar_datefin IS 'Date fin de marché (i.e. dat
 COMMENT ON COLUMN sqe.t_marche_mar.mar_reference IS 'Référence du marché';
 COMMENT ON COLUMN sqe.t_marche_mar.mar_statut IS 'Statut du marché (En cours ou Terminé)';
 COMMENT ON COLUMN sqe.t_marche_mar.mar_nom IS 'Nom du marché (unique)';
+COMMENT ON COLUMN sqe.t_marche_mar.mar_nom_long IS 'Nom long du marché (pour titre des bons de commandes)';
 
 ALTER TABLE sqe.t_marche_mar OWNER TO grp_eptbv_planif_dba;
 
@@ -158,7 +160,7 @@ ALTER TABLE sqe.tj_marche_perimetre_map OWNER TO grp_eptbv_planif_dba;
 ----------------------------------------
 -- creation des tables relatives aux prestations du marché
 ----------------------------------------
-
+DROP TABLE IF EXISTS sqe.t_prestation_prs CASCADE;
 CREATE TABLE sqe.t_prestation_prs(
 prs_id serial PRIMARY KEY, -- identifiant de la prestation
 prs_mar_id INTEGER, -- identifiant du marché
@@ -265,7 +267,7 @@ COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestacom IS 'Nombre d
 COMMENT ON COLUMN sqe.t_boncommande_quantitatif_bcq.bcq_nbprestareal IS 'Nombre de prestations réalisées';
 
 /* prog bdc : programme du bon de commande */
-DROP TABLE IF EXISTS sqe.t_boncommande_pgm_bcp;
+DROP TABLE IF EXISTS sqe.t_boncommande_pgm_bcp CASCADE;
 CREATE TABLE sqe.t_boncommande_pgm_bcp(
 bcp_bco_id INTEGER, -- fk
 bcp_prs_id INTEGER, -- id de la prestation
@@ -409,7 +411,7 @@ COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datedebut IS 'Date de début de la 
 COMMENT ON COLUMN sqe.t_prixunitaire_pru.pru_datefin IS 'Date de fin de la validité du prix';
 
 -- table héritée éléments du marché flacon, réunion ....
-
+DROP TABLE IF EXISTS sqe.t_prixunitaireprestation_prp CASCADE;
 CREATE TABLE sqe.t_prixunitaireprestation_prp (
 prp_prs_id INTEGER,
 CONSTRAINT  c_fk_prp_prs_id FOREIGN KEY (prp_prs_id) 
@@ -417,6 +419,7 @@ REFERENCES sqe.t_prestation_prs(prs_id) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT c_ck_pru_datefin CHECK (pru_datefin > pru_datedebut)
 )INHERITS (sqe.t_prixunitaire_pru) ;
 
+DROP TABLE IF EXISTS sqe.t_prixunitairerunanalytique_prr CASCADE;
 CREATE TABLE sqe.t_prixunitairerunanalytique_prr (
 prr_mar_id INTEGER,
 prr_run_id INTEGER,
@@ -963,7 +966,6 @@ sqe.t_boncommande_bco(bco_id) ON UPDATE CASCADE  -- il faut redéfinir les contr
 
 
 
-
 /* ==============================
  *             VIEWS 
  */   
@@ -986,11 +988,12 @@ FROM sqe.t_boncommande_bco
 INNER JOIN sqe.t_marche_mar 
 ON  bco_mar_id= mar_id;   
   
+
 CREATE OR REPLACE VIEW sqe.view_bdc_quantif
-AS SELECT mar_reference ,mar_nom, bco_per_nom , bco_refcommande,
-bco_commentaires, prs_idprestationdansbpu, prs_label_prestation,
+AS SELECT mar_reference ,mar_nom,mar_nom_long, bco_per_nom ,bco_id, bco_refcommande,
+bco_commentaires, prs_idprestationdansbpu, prs_label_prestation, prm_unitedoeuvre,
 bcq_nbprestacom,
-pre_nom, pre_id 
+pre_nom, pre_id,  pru_datedebut, pru_datefin, pru_valeur
 FROM sqe.t_boncommande_bco 
 INNER JOIN sqe.t_marche_mar 
 ON  bco_mar_id= mar_id
@@ -1000,12 +1003,16 @@ INNER JOIN sqe.t_prestation_prs
 ON bcq_prs_id=prs_id
 INNER JOIN refer.tr_prestataire_pre
 ON prs_pre_id=pre_id
+INNER JOIN sqe.t_prixunitaireprestation_prp
+ON prs_id=prp_prs_id
 ;   
-  
+ 
+
 CREATE OR REPLACE VIEW sqe.view_bdc_quantif_par_staq
-AS SELECT mar_reference ,mar_nom, bco_per_nom , bco_refcommande,
+AS SELECT mar_reference ,mar_nom, bco_id, bco_per_nom , bco_refcommande,
 bco_commentaires, prs_idprestationdansbpu, prs_label_prestation,
-pre_nom, pre_id, bcp_stm_cdstationmesureinterne,bcp_dateinterv
+pre_nom, pre_id, bcp_stm_cdstationmesureinterne,stm_lbstationmesureeauxsurface,
+bcp_dateinterv
 FROM sqe.t_boncommande_bco 
 INNER JOIN sqe.t_marche_mar 
 ON  bco_mar_id= mar_id
@@ -1015,6 +1022,8 @@ INNER JOIN sqe.t_prestation_prs
 ON bcp_prs_id=prs_id
 INNER JOIN refer.tr_prestataire_pre
 ON prs_pre_id=pre_id
+INNER JOIN refer.tr_stationmesure_stm
+ON bcp_stm_cdstationmesureinterne=stm_cdstationmesureinterne
 ;   
 
 
