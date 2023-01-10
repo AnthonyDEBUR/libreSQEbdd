@@ -48,25 +48,26 @@ ALTER TABLE refer.tr_prestataire_pre OWNER TO grp_eptbv_planif_dba;
 CREATE TABLE refer.tr_perimetre_per(
 per_nom TEXT PRIMARY KEY,
 per_description TEXT,
+per_entite_gestionaire TEXT,
 per_geom geometry
 );
 
 ALTER TABLE refer.tr_perimetre_per OWNER TO grp_eptbv_planif_dba;
 
-INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
-VALUES  ('UGVA', 'Unité gestion Vilaine Aval');
-INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
-VALUES  ('UGVE', 'Unité gestion Vilaine Est');
-INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
-VALUES  ('UGVO', 'Unité gestion Vilaine Ouest');
-INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
-VALUES  ('UGVE_PONT_BILLON', 'Unité gestion Vilaine Est - suivi spécifique captage de Pont-Billon');
-INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
-VALUES  ('UGVE_VALIERE', 'Unité gestion Vilaine Est - suivi spécifique captage de la Valière');
-INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
-VALUES  ('UGVO - IIF', 'Unité gestion Vilaine Ouest - suivi spécifique bassin Ille-Illet et Flume');
-INSERT INTO refer.tr_perimetre_per(per_nom, per_description)
-VALUES  ('UGVO - VHBC', 'Unité gestion Vilaine Est - suivi spécifique territoire de Vallons de Haute-Bretagne Communauté');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description, per_entite_gestionaire)
+VALUES  ('UGVA', 'Unité gestion Vilaine Aval', 'UGVA');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description, per_entite_gestionaire)
+VALUES  ('UGVE', 'Unité gestion Vilaine Est', 'UGVE');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description, per_entite_gestionaire)
+VALUES  ('UGVO', 'Unité gestion Vilaine Ouest', 'UGVO');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description, per_entite_gestionaire)
+VALUES  ('UGVE_PONT_BILLON', 'Unité gestion Vilaine Est - suivi spécifique captage de Pont-Billon', 'UGVE');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description, per_entite_gestionaire)
+VALUES  ('UGVE_VALIERE', 'Unité gestion Vilaine Est - suivi spécifique captage de la Valière', 'UGVE');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description, per_entite_gestionaire)
+VALUES  ('UGVO - IIF', 'Unité gestion Vilaine Ouest - suivi spécifique bassin Ille-Illet et Flume', 'UGVO');
+INSERT INTO refer.tr_perimetre_per(per_nom, per_description, per_entite_gestionaire)
+VALUES  ('UGVO - VHBC', 'Unité gestion Vilaine Est - suivi spécifique territoire de Vallons de Haute-Bretagne Communauté', 'UGVO');
 
 
 
@@ -196,9 +197,7 @@ INSERT INTO refer.tr_statutpresta_stp VALUES ('Analysé', 'Analyse rendue');
 INSERT INTO refer.tr_statutpresta_stp VALUES ('Validé', 'Analyse validée');
 
 -- DROP TABLE sqe.t_boncommande_bco CASCADE;
-DROP TABLE IF EXISTS sqe.t_boncommande_quantitatif_bcq CASCADE;
 DROP TABLE IF EXISTS sqe.t_boncommande_bco CASCADE;
-
 CREATE TABLE sqe.t_boncommande_bco(
 bco_id serial PRIMARY KEY,
 bco_mar_id INTEGER NOT NULL, --fk
@@ -254,6 +253,7 @@ CREATE TRIGGER checkexistebco_prs_id AFTER INSERT OR UPDATE ON
 */
 
 /* quantitatif bdc */
+DROP TABLE IF EXISTS sqe.t_boncommande_quantitatif_bcq CASCADE; 
 CREATE TABLE sqe.t_boncommande_quantitatif_bcq(
 bcq_bco_id INTEGER, -- fk
 bcq_prs_id INTEGER, 
@@ -990,7 +990,7 @@ ON  bco_mar_id= mar_id;
   
 
 CREATE OR REPLACE VIEW sqe.view_bdc_quantif
-AS SELECT mar_reference ,mar_nom,mar_nom_long, bco_per_nom ,bco_id, bco_refcommande,
+AS SELECT mar_reference ,mar_nom,mar_nom_long, per_entite_gestionaire, bco_per_nom ,bco_id, bco_refcommande,
 bco_commentaires, prs_idprestationdansbpu, prs_label_prestation, prm_unitedoeuvre,
 bcq_nbprestacom,
 pre_nom, pre_id,  pru_datedebut, pru_datefin, pru_valeur
@@ -1005,6 +1005,8 @@ INNER JOIN refer.tr_prestataire_pre
 ON prs_pre_id=pre_id
 INNER JOIN sqe.t_prixunitaireprestation_prp
 ON prs_id=prp_prs_id
+INNER JOIN refer.tr_perimetre_per
+ON per_nom=bco_per_nom
 ;   
  
 
